@@ -111,19 +111,30 @@
 				dealerTotalEl.textContent = standBtn.disabled ? `Total: ${valueOf(dealerHand)}` : `Total: ?`;
 			}
 
-		function listPlayers(){
-			state = readState();
-			if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; }
-			let html = '<label>Choose player: <select id="playerSel">';
-			for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`;
-			html += '</select></label>';
-			html += ' <button id="chooseBtn">Play</button>';
-			playerSelectEl.innerHTML = html;
-			document.getElementById('chooseBtn').addEventListener('click', ()=>{
-				const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; }
-				gameArea.style.display='block'; playerSelectEl.style.display='none'; resultEl.textContent=''; renderUI();
-			});
-		}
+			function listPlayers(){
+				const params = new URLSearchParams(location.search);
+				const playerParam = params.get('player');
+				state = readState();
+				if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; }
+				let html = '<label>Choose player: <select id="playerSel">';
+				for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`;
+				html += '</select></label>';
+				html += ' <button id="chooseBtn">Play</button>';
+				playerSelectEl.innerHTML = html;
+				const chooseBtn = document.getElementById('chooseBtn');
+				chooseBtn.addEventListener('click', ()=>{
+					const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; }
+					gameArea.style.display='block'; playerSelectEl.style.display='none'; resultEl.textContent=''; renderUI();
+				});
+				// auto-select if opened from board with ?player=id
+				if(playerParam){
+					const selEl = document.getElementById('playerSel');
+					if(selEl.querySelector(`option[value="${playerParam}"]`)){
+						selEl.value = playerParam;
+						chooseBtn.click();
+					}
+				}
+			}
 
 		function renderUI(){
 			betInput.max = curPlayer.money;

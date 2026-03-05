@@ -198,14 +198,36 @@ class Game {
     if(label==='Jail'){ player.inJail = true; this.log(`${player.name} is in Jail. Wait one turn or click End Turn to skip.`); }
     if(label==='GoToJail'){ player.pos = 9; player.inJail = true; this.log(`${player.name} was sent to Jail!`); }
     if(label==='Chance'){ const r = Math.random(); if(r<0.5){ player.money += 100; this.log(`${player.name} found 100$ (Chance).`);} else { player.money -=50; this.log(`${player.name} lost 50$ (Chance).`)} }
-    if(label==='BlackJack'){ this.log(`${player.name} landed on Blackjack — try the mini-game.`); }
-    if(label==='Slots'){ this.log(`${player.name} landed on Slots — try the mini-game.`); }
-    if(label==='Roulette'){ this.log(`${player.name} landed on Roulette — try the mini-game.`); }
-    if(label==='Backarat'){ this.log(`${player.name} landed on Baccarat — try the mini-game.`); }
+    // mini-game redirects (open relevant mini-game page and pass player id)
+    const mini = this.getMiniGameForIndex(s);
+    if(mini){
+      this.log(`${player.name} landed on ${label} — opening ${mini}...`);
+      this.save();
+      // give the UI a moment to update then redirect
+      setTimeout(()=>{
+        window.location.href = mini + '?player=' + encodeURIComponent(player.id);
+      }, 350);
+      return; // stop further processing until player returns
+    }
     // basic negative money check
     if(player.money < 0){ this.log(`${player.name} is bankrupt! Removing from game.`); this.players = this.players.filter(p=>p.money>=0); if(this.current>=this.players.length) this.current=0; }
     this.save();
     this.renderPlayers();
+  }
+
+  // return mini-game page for a given perimeter index (or null)
+  getMiniGameForIndex(i){
+    // map specific indices to mini-games (adjustable)
+    const map = {
+      16: 'black-jack.html',
+      26: 'slots.html',
+      36: 'roulette.html',
+      38: 'backarat.html',
+      2: 'chance.html',
+      17: 'chance.html',
+      33: 'chance.html'
+    };
+    return map[i] || null;
   }
 
   endTurn(){

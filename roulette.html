@@ -50,7 +50,16 @@
 
 		let state = readState(), curPlayer=null;
 
-		function listPlayers(){ state = readState(); if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; } let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>'; playerSelectEl.innerHTML = html; document.getElementById('chooseBtn').addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } rouletteArea.style.display='block'; playerSelectEl.style.display='none'; }); }
+			function listPlayers(){
+				const params = new URLSearchParams(location.search);
+				const playerParam = params.get('player');
+				state = readState(); if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; }
+				let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>';
+				playerSelectEl.innerHTML = html;
+				const chooseBtn = document.getElementById('chooseBtn');
+				chooseBtn.addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } rouletteArea.style.display='block'; playerSelectEl.style.display='none'; });
+				if(playerParam){ const selEl = document.getElementById('playerSel'); if(selEl.querySelector(`option[value="${playerParam}"]`)){ selEl.value = playerParam; chooseBtn.click(); } }
+			}
 
 		function spin(){ const bet = Math.max(1, Math.floor(Number(betInput.value)||1)); if(bet>curPlayer.money){ alert('Bet exceeds money'); return; }
 			const type = betType.value; const val = betVal.value.trim().toLowerCase(); resultEl.textContent='';

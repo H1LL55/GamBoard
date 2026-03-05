@@ -32,7 +32,16 @@
 		function saveState(s){ localStorage.setItem('gamboard_state', JSON.stringify(s)); }
 		const playerSelectEl = document.getElementById('playerSelect'); const area = document.getElementById('area'); const backBtn = document.getElementById('backBtn'); const playBtn = document.getElementById('playBtn'); const betInput = document.getElementById('bet'); const choiceEl = document.getElementById('choice'); const ph = document.getElementById('ph'); const bh = document.getElementById('bh'); const pt = document.getElementById('pt'); const bt = document.getElementById('bt'); const resultEl = document.getElementById('result');
 		let state = readState(), curPlayer=null;
-		function listPlayers(){ state = readState(); if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; } let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>'; playerSelectEl.innerHTML = html; document.getElementById('chooseBtn').addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } area.style.display='block'; playerSelectEl.style.display='none'; }); }
+			function listPlayers(){
+				const params = new URLSearchParams(location.search);
+				const playerParam = params.get('player');
+				state = readState(); if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; }
+				let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>';
+				playerSelectEl.innerHTML = html;
+				const chooseBtn = document.getElementById('chooseBtn');
+				chooseBtn.addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } area.style.display='block'; playerSelectEl.style.display='none'; });
+				if(playerParam){ const selEl = document.getElementById('playerSel'); if(selEl.querySelector(`option[value="${playerParam}"]`)){ selEl.value = playerParam; chooseBtn.click(); } }
+			}
 
 		function draw(){ return Math.floor(Math.random()*10); } // baccarat uses 0-9
 
