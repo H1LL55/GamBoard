@@ -89,12 +89,27 @@
 			return total;
 		}
 
-		function renderHands(){
-			playerCardsEl.textContent = playerHand.map(c=>c.r+c.s).join(' ');
-			dealerCardsEl.textContent = dealerHand.map((c,i)=> i===0 && !standBtn.disabled ? (c.r+'?') : c.r+c.s).join(' ');
-			playerTotalEl.textContent = `Total: ${valueOf(playerHand)}`;
-			dealerTotalEl.textContent = standBtn.disabled ? `Total: ${valueOf(dealerHand)}` : `Total: ?`;
-		}
+			function renderHands(){
+				// render player cards with animated spans
+				playerCardsEl.innerHTML = '';
+				dealerCardsEl.innerHTML = '';
+				playerHand.forEach((c,i)=>{
+					const s = document.createElement('span'); s.className='card'; s.textContent = c.r + c.s;
+					playerCardsEl.appendChild(s);
+					// staggered deal animation
+					setTimeout(()=> s.classList.add('dealt'), 80 * i);
+				});
+				dealerHand.forEach((c,i)=>{
+					const s = document.createElement('span'); s.className='card';
+					// hide dealer second card until stand
+					if(i===0 && !standBtn.disabled){ s.textContent = c.r + '?'; }
+					else { s.textContent = c.r + c.s; }
+					dealerCardsEl.appendChild(s);
+					setTimeout(()=> s.classList.add('dealt'), 100 * i);
+				});
+				playerTotalEl.textContent = `Total: ${valueOf(playerHand)}`;
+				dealerTotalEl.textContent = standBtn.disabled ? `Total: ${valueOf(dealerHand)}` : `Total: ?`;
+			}
 
 		function listPlayers(){
 			state = readState();
@@ -151,7 +166,9 @@
 			else if(result==='win'){ p.money += bet; resultEl.textContent = `You win $${bet}`; }
 			else if(result==='push'){ resultEl.textContent = `Push — no money lost.`; }
 			else if(result==='bust' || result==='lose'){ p.money -= bet; resultEl.textContent = `You lost $${bet}`; }
-			saveState(state); listPlayers(); renderHands();
+					// style result
+					resultEl.className = result==='win' || result==='blackjack' ? 'result-win' : (result==='push' ? '' : 'result-lose');
+					saveState(state); listPlayers(); renderHands();
 		}
 
 		backBtn.addEventListener('click', ()=>{ window.location.href='index.html'; });

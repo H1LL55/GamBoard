@@ -34,3 +34,31 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 .token.p3{background:#b7ff9b}
 
 @media (max-width:900px){.container{flex-direction:column}.sidebar{width:100%}}
+
+/* Polished UI and animations */
+.board{min-height:560px;border:6px solid rgba(0,0,0,0.3);box-shadow:0 8px 30px rgba(2,6,23,0.6);padding:14px;background-image:url('../assets/images/template.png');background-position:center;background-size:cover}
+.cell{width:64px;height:64px;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:transform 240ms ease, box-shadow 240ms ease;border:1px solid rgba(0,0,0,0.25)}
+.cell:hover{transform:translateY(-6px);box-shadow:0 8px 16px rgba(0,0,0,0.45)}
+.cell .label{font-size:12px;color:var(--muted);text-align:center;padding:2px}
+.player.active{outline:2px solid var(--accent);background:linear-gradient(90deg,rgba(255,204,51,0.12),transparent)}
+
+.token{transition:transform 360ms cubic-bezier(.2,.9,.2,1),opacity 260ms ease;opacity:0;transform:scale(0.6) translateY(-6px)}
+.token.appear{opacity:1;transform:scale(1) translateY(0)}
+
+/* card visuals used by mini-games */
+.card{display:inline-block;background:#fff;color:#111;padding:6px 10px;border-radius:8px;margin-right:6px;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,0.25);transform:translateY(-16px);opacity:0}
+.card.dealt{animation:deal 320ms forwards}
+@keyframes deal{to{transform:none;opacity:1}}
+
+/* slots reels */
+.reel{font-size:48px;min-width:56px;text-align:center}
+.reel.spin{animation:reelspin 600ms cubic-bezier(.2,.8,.2,1)}
+@keyframes reelspin{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
+
+/* roulette wheel */
+.wheelInner{display:inline-block;padding:18px 28px;border-radius:999px;background:linear-gradient(180deg,#222,#111);color:var(--accent);box-shadow:0 8px 20px rgba(0,0,0,0.6);transform:rotate(0deg)}
+.wheelInner.spin{transition:transform 900ms cubic-bezier(.2,.7,.2,1);transform:rotate(1080deg)}
+
+/* result highlights */
+.result-win{color:#9be79b}
+.result-lose{color:#ff9b9b}

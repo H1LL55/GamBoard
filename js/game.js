@@ -109,12 +109,18 @@ class Game {
     t.style.left = (6 + (player.id*16))+'px';
     t.style.top = (6)+'px';
     cell.appendChild(t);
+    // animate token appearing
+    requestAnimationFrame(()=>{
+      t.classList.add('appear');
+    });
+    setTimeout(()=>{ t.classList.remove('appear'); }, 800);
   }
 
   renderPlayers(){
     this.playersEl.innerHTML = '';
     this.players.forEach((p,idx)=>{
       const el = document.createElement('div'); el.className='player';
+      if(idx === this.current) el.classList.add('active');
       el.innerHTML = `<div><strong>${p.name}</strong> <small class="muted">(#${p.id})</small></div><div>${p.money}$</div>`;
       this.playersEl.appendChild(el);
       this.placeToken(p);

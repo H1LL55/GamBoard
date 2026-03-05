@@ -18,11 +18,11 @@
 				<button id="spinBtn">Spin</button>
 				<button id="backBtn">Return</button>
 			</div>
-			<div style="margin-top:16px;display:flex;gap:12px;align-items:center;font-size:36px;justify-content:center">
-				<div id="r0">—</div>
-				<div id="r1">—</div>
-				<div id="r2">—</div>
-			</div>
+					<div style="margin-top:16px;display:flex;gap:12px;align-items:center;font-size:36px;justify-content:center">
+						<div id="r0" class="reel">—</div>
+						<div id="r1" class="reel">—</div>
+						<div id="r2" class="reel">—</div>
+					</div>
 			<div id="payout" style="margin-top:12px;font-weight:700"></div>
 		</div>
 
@@ -51,11 +51,12 @@
 			payoutEl.textContent='Spinning...'; spinBtn.disabled=true; const res = [];
 			// simple random reels
 			for(let i=0;i<3;i++){ res[i]=symbols[Math.floor(Math.random()*symbols.length)]; reels[i].textContent=''; }
-			// animate
-			let step=0; const iv = setInterval(()=>{
-				for(let i=0;i<3;i++) reels[i].textContent = symbols[Math.floor(Math.random()*symbols.length)];
-				step++; if(step>20){ clearInterval(iv); for(let i=0;i<3;i++) reels[i].textContent = res[i]; evaluate(res,bet); spinBtn.disabled=false; }
-			},80);
+					// animate
+					let step=0; for(let i=0;i<3;i++) reels[i].classList.add('spin');
+					const iv = setInterval(()=>{
+						for(let i=0;i<3;i++) reels[i].textContent = symbols[Math.floor(Math.random()*symbols.length)];
+						step++; if(step>20){ clearInterval(iv); for(let i=0;i<3;i++){ reels[i].textContent = res[i]; reels[i].classList.remove('spin'); } evaluate(res,bet); spinBtn.disabled=false; }
+					},80);
 		}
 
 		function evaluate(res,bet){ // payouts: 3x7 = 50x, three of same = 10x, two of same = 2x
