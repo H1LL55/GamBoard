@@ -26,12 +26,14 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 .sidebar{width:220px}
 footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,255,0.03)}
 
-.token{position:absolute;width:14px;height:14px;border-radius:50%;box-shadow:0 1px 0 rgba(0,0,0,0.6);}
+.token{position:absolute;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;box-shadow:0 1px 0 rgba(0,0,0,0.6)}
 
-.token.p0{background:#ff7b7b}
-.token.p1{background:#7bc8ff}
-.token.p2{background:#ffdf7b}
-.token.p3{background:#b7ff9b}
+.token .token-inner{width:100%;height:100%;border-radius:50%;display:block;transform-origin:center center;transition:transform 220ms ease}
+
+.token.p0 .token-inner{background:#ff7b7b}
+.token.p1 .token-inner{background:#7bc8ff}
+.token.p2 .token-inner{background:#ffdf7b}
+.token.p3 .token-inner{background:#b7ff9b}
 
 @media (max-width:900px){.container{flex-direction:column}.sidebar{width:100%}}
 
@@ -41,8 +43,10 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 .cell .label{font-size:12px;color:var(--muted);text-align:center;padding:2px}
 .player.active{outline:2px solid var(--accent);background:linear-gradient(90deg,rgba(255,204,51,0.12),transparent)}
 
-.token{transition:transform 360ms cubic-bezier(.2,.9,.2,1),opacity 260ms ease;opacity:0;transform:scale(0.6) translateY(-6px);position:absolute}
-.token.appear{opacity:1;transform:scale(1) translateY(0)}
+.token{transition:opacity 260ms ease;opacity:0;position:absolute;display:flex;align-items:center;justify-content:center}
+.token.appear{opacity:1}
+.token.bob{animation:bob 600ms ease 1}
+@keyframes bob{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
 /* card visuals used by mini-games */
 .card{display:inline-block;background:#fff;color:#111;padding:6px 10px;border-radius:8px;margin-right:6px;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,0.25);transform:translateY(-16px);opacity:0}
@@ -77,6 +81,36 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 .cell.perimeter.tile-mini{background:linear-gradient(180deg,rgba(255,204,51,0.06),rgba(0,0,0,0.02));border:1px solid rgba(255,204,51,0.08)}
 .cell.perimeter.tile-casino{background:linear-gradient(180deg,rgba(123,201,255,0.06),rgba(0,0,0,0.02));border:1px dashed rgba(123,201,255,0.08)}
 .cell.perimeter .mini-icon{position:absolute;right:4px;top:4px;font-size:12px;opacity:0.9}
+
+/* Neon/glow variants for casino tiles */
+.cell.tile-mini{box-shadow:0 6px 18px rgba(255,204,51,0.06), inset 0 -6px 18px rgba(255,204,51,0.02);}
+.cell.tile-casino{box-shadow:0 6px 18px rgba(123,201,255,0.06), inset 0 -6px 18px rgba(123,201,255,0.02);}
+.cell.tile-mini:hover, .cell.tile-casino:hover{transform:translateY(-8px) scale(1.04);box-shadow:0 18px 40px rgba(0,0,0,0.55),0 0 18px rgba(255,204,51,0.16)}
+.cell.tile-casino:hover{box-shadow:0 18px 40px rgba(0,0,0,0.55),0 0 18px rgba(123,201,255,0.16)}
+.cell .label{pointer-events:none}
+
+/* tooltip for tiles */
+.tile-tooltip{position:absolute;padding:8px 10px;background:rgba(10,12,18,0.95);color:var(--white);border-radius:8px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:1500;pointer-events:none;transform:translate(-50%,-110%);white-space:nowrap}
+.tile-tooltip .mini{display:inline-block;margin-left:8px;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,0.04);font-weight:700}
+
+/* center panel polish */
+.board-center{position:absolute;left:50%;top:50%;width:420px;height:420px;transform:translate(-50%,-50%);background:radial-gradient(closest-side, rgba(255,255,255,0.02), rgba(0,0,0,0.28));border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);text-align:center;padding:18px;border:2px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px)}
+.board-center .center-inner{max-width:340px;transition:transform 360ms cubic-bezier(.2,.8,.2,1);}
+.board-center .center-inner.pulse{transform:scale(1.04)}
+.board-center h2{margin:0 0 8px 0;font-size:22px;letter-spacing:0.6px}
+.board-center p{margin:0;color:var(--muted)}
+
+/* token polish */
+.token{width:22px;height:22px;border-radius:999px;box-shadow:0 6px 14px rgba(2,6,23,0.6);transition:transform 220ms ease, opacity 260ms ease}
+.token .token-inner{box-shadow:inset 0 -4px 8px rgba(0,0,0,0.25);border:2px solid rgba(255,255,255,0.06)}
+.token.appear{transform:scale(1.12)}
+.player.active{outline:2px solid var(--accent);background:linear-gradient(90deg,rgba(255,204,51,0.12),transparent);transition:box-shadow 240ms ease, transform 220ms ease}
+.player.active .muted{color:var(--accent)}
+
+/* small responsive tweaks for tile labels to remain legible */
+@media (max-width:900px){
+  .cell .label{font-size:10px}
+}
 
 /* modal */
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1200}

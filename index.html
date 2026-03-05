@@ -35,13 +35,24 @@
     <aside class="sidebar">
       <h2>Bank</h2>
       <div id="bank">Bank: 0</div>
-      <h3>Quick Links</h3>
-      <ul>
-        <li><a href="black-jack.html">Blackjack (mini-game)</a></li>
-        <li><a href="slots.html">Slots (mini-game)</a></li>
-        <li><a href="roulette.html">Roulette (mini-game)</a></li>
-        <li><a href="chance.html">Chance</a></li>
-      </ul>
+      <h3>Mini Slots</h3>
+      <div id="sidebarSlots" style="padding:8px;background:rgba(255,255,255,0.02);border-radius:8px">
+        <div id="sidebarPlayerWrap" style="margin-bottom:8px">
+          <label style="font-size:13px">Player: 
+            <select id="sidebarPlayer" style="width:140px"></select>
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <label style="font-size:13px">Bet: $<input id="sidebarBet" type="number" min="1" value="10" style="width:80px"></label>
+          <button id="sidebarSpin">Spin</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;justify-content:center;font-size:26px;margin-bottom:8px">
+          <div id="sbR0" class="reel">—</div>
+          <div id="sbR1" class="reel">—</div>
+          <div id="sbR2" class="reel">—</div>
+        </div>
+        <div id="sidebarPayout" style="font-weight:700;text-align:center">Good luck!</div>
+      </div>
     </aside>
   </main>
 
@@ -54,6 +65,19 @@
       <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
         <button id="modalConfirm">Yes, enter</button>
         <button id="modalCancel">No, stay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game over modal -->
+  <div id="gameOverModal" class="modal" role="dialog" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-panel" role="document">
+      <h3 id="gameOverTitle">Game Over</h3>
+      <p id="gameOverBody">Player X has lost all their money.</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
+        <button id="gameOverReset">Reset Game</button>
+        <button id="gameOverClose">Close</button>
       </div>
     </div>
   </div>

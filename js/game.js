@@ -4,6 +4,7 @@ class Game {
     this.boardSize = 40; // number of squares (full perimeter)
     this.players = [];
     this.current = 0;
+    this.gameOver = false;
     this.logEl = null;
     this.diceEl = null;
     this.rollBtn = null;
@@ -19,6 +20,7 @@ class Game {
     this.load();
     this.cacheElements();
     this.buildBoard();
+    this.initSidebarSlots();
     this.bind();
     // handle return from mini-game (auto-advance if requested)
     try{
@@ -28,6 +30,11 @@ class Game {
         // clear querystring to avoid repeating this logic
         history.replaceState(null,'', window.location.pathname);
         this.log('Returned from mini-game.');
+        // reload latest state (mini-game may have changed money)
+        this.load();
+        this.renderPlayers();
+        // check for game over immediately after returning
+        if(this.checkGameOver()) return;
         if(advance==='1'){
           // advance turn once to move to next player
           setTimeout(()=> this.endTurn(), 500);
@@ -36,6 +43,75 @@ class Game {
     }catch(e){/* ignore */}
     this.renderPlayers();
     this.log('Game ready. Add players to start.');
+  }
+
+  // initialize the compact slot machine in the sidebar
+  initSidebarSlots(){
+    try{
+      const sel = document.getElementById('sidebarPlayer');
+      const betInput = document.getElementById('sidebarBet');
+      const spinBtn = document.getElementById('sidebarSpin');
+      const reels = [document.getElementById('sbR0'), document.getElementById('sbR1'), document.getElementById('sbR2')];
+      const payoutEl = document.getElementById('sidebarPayout');
+      if(!sel || !betInput || !spinBtn || reels.some(r=>!r) || !payoutEl) return;
+
+      const symbols = ['🍒','🔔','🍋','⭐','7'];
+
+      const refreshPlayerOptions = ()=>{
+        sel.innerHTML = '';
+        for(const p of this.players){
+          const opt = document.createElement('option'); opt.value = p.id; opt.textContent = `${p.name} ($${p.money})`;
+          sel.appendChild(opt);
+        }
+      };
+
+      const readState = ()=>{ try{ const raw = localStorage.getItem('gamboard_state'); return raw?JSON.parse(raw):{players:[],current:0,bank:0}; }catch(e){return {players:[],current:0,bank:0}; } };
+      const saveState = (s)=>{ localStorage.setItem('gamboard_state', JSON.stringify(s)); };
+
+      refreshPlayerOptions();
+
+      const evaluate = (res,bet,playerId)=>{
+        // payouts: 3x7 = 50x, three of same = 10x, two of same = 2x
+        const counts = {};
+        for(const s of res) counts[s] = (counts[s]||0)+1;
+        let payout=0; if(counts['7']===3) payout = bet*50; else if(Object.values(counts).includes(3)) payout = bet*10; else if(Object.values(counts).includes(2)) payout = bet*2; else payout=0;
+        const state = readState();
+        const p = state.players.find(x=>x.id==playerId);
+        if(!p){ payoutEl.textContent = 'Player not found'; saveState(state); return; }
+        if(payout>0){ p.money += payout; payoutEl.textContent = `Won $${payout}`; } else { p.money -= bet; payoutEl.textContent = `Lost $${bet}`; }
+        saveState(state);
+        // refresh main UI
+        this.load(); this.renderPlayers();
+        // check for game over
+        this.checkGameOver();
+      };
+
+      const spin = ()=>{
+        const state = readState(); if(!state.players || state.players.length===0){ alert('No players available'); return; }
+        const playerId = sel.value || state.current;
+        const p = state.players.find(x=>x.id==playerId);
+        if(!p){ alert('Invalid player'); return; }
+        const bet = Math.max(1, Math.floor(Number(betInput.value)||1));
+        if(bet > p.money){ alert('Bet exceeds money'); return; }
+        payoutEl.textContent = 'Spinning...'; spinBtn.disabled = true;
+        const res = [];
+        for(let i=0;i<3;i++){ res[i]=symbols[Math.floor(Math.random()*symbols.length)]; reels[i].textContent=''; }
+        reels.forEach(r=>r.classList.add('spin'));
+        let step = 0;
+        const iv = setInterval(()=>{
+          for(let i=0;i<3;i++) reels[i].textContent = symbols[Math.floor(Math.random()*symbols.length)];
+          step++; if(step>18){ clearInterval(iv); for(let i=0;i<3;i++){ reels[i].textContent = res[i]; reels[i].classList.remove('spin'); } evaluate(res,bet,playerId); spinBtn.disabled=false; }
+        }, 80);
+      };
+
+      spinBtn.addEventListener('click', spin);
+      // refresh options when players change (exposed via renderPlayers)
+      const origRenderPlayers = this.renderPlayers.bind(this);
+      this.renderPlayers = ()=>{
+        origRenderPlayers();
+        refreshPlayerOptions();
+      };
+    }catch(e){ console.warn('sidebar slots init failed', e); }
   }
 
   cacheElements(){
@@ -85,6 +161,41 @@ class Game {
     this.save();
     this.renderPlayers();
     this.log(`${name} joined the game.`);
+  }
+
+  // check for any player who has run out of money and declare game over
+  checkGameOver(){
+    if(this.gameOver) return true;
+    for(const p of this.players){
+      if(p.money <= 0){
+        this.showGameOver(p);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  showGameOver(player){
+    this.gameOver = true;
+    this.log(`GAME OVER: ${player.name} has lost all their money.`);
+    // disable controls
+    if(this.rollBtn) this.rollBtn.disabled = true;
+    if(this.endTurnBtn) this.endTurnBtn.disabled = true;
+    // show modal if present
+    const modal = document.getElementById('gameOverModal');
+    const title = document.getElementById('gameOverTitle');
+    const body = document.getElementById('gameOverBody');
+    const reset = document.getElementById('gameOverReset');
+    const close = document.getElementById('gameOverClose');
+    if(modal && title && body && reset && close){
+      title.textContent = 'Game Over';
+      body.textContent = `${player.name} has lost all their money and is eliminated.`;
+      modal.setAttribute('aria-hidden','false');
+      const onReset = ()=>{ reset.removeEventListener('click', onReset); close.removeEventListener('click', onClose); modal.setAttribute('aria-hidden','true'); this.clear(); };
+      const onClose = ()=>{ reset.removeEventListener('click', onReset); close.removeEventListener('click', onClose); modal.setAttribute('aria-hidden','true'); };
+      reset.addEventListener('click', onReset);
+      close.addEventListener('click', onClose);
+    }
   }
 
   buildBoard(){
@@ -171,6 +282,30 @@ class Game {
 
     // call once to position now
     positionTiles();
+    // create a tooltip element for tiles
+    let tooltip = this.boardEl.querySelector('.tile-tooltip');
+    if(!tooltip){ tooltip = document.createElement('div'); tooltip.className = 'tile-tooltip'; tooltip.style.display = 'none'; this.boardEl.appendChild(tooltip); }
+    // attach hover listeners to show tooltip with label and mini-game info
+    for(let i=0;i<tileCount;i++){
+      const el = this.boardEl.querySelector(`.cell[data-index="${i}"]`);
+      if(!el) continue;
+      el.addEventListener('mouseenter', (ev)=>{
+        const idx = Number(el.dataset.index);
+        const label = this.squareLabel(idx);
+        const mg = this.getMiniGameForIndex(idx);
+        tooltip.innerHTML = `<strong>${label}</strong>` + (mg?` <span class="mini">${mg.includes('slots')? 'Slots': mg.includes('black-jack')? 'Blackjack': mg.includes('roulette')? 'Roulette': mg.includes('backarat')? 'Baccarat':'Mini'}</span>` : '');
+        tooltip.style.display = 'block';
+        const r = el.getBoundingClientRect(); const b = this.boardEl.getBoundingClientRect();
+        tooltip.style.left = `${r.left - b.left + r.width/2}px`;
+        tooltip.style.top = `${r.top - b.top}px`;
+      });
+      el.addEventListener('mousemove', (ev)=>{
+        const r = el.getBoundingClientRect(); const b = this.boardEl.getBoundingClientRect();
+        tooltip.style.left = `${r.left - b.left + r.width/2}px`;
+        tooltip.style.top = `${r.top - b.top}px`;
+      });
+      el.addEventListener('mouseleave', ()=>{ tooltip.style.display='none'; });
+    }
     // recompute on resize with debounce
     let resizeTimer = null;
     window.addEventListener('resize', ()=>{
@@ -195,10 +330,10 @@ class Game {
   squareLabel(i){
     // Monopoly-style labels (40 squares)
     const names = [
-      'Go','Mediterranean Ave','Community Chest','Baltic Ave','Income Tax','Reading RR','Oriental Ave','Chance','Vermont Ave','Connecticut Ave',
-      'Jail/Just Visiting','St. Charles Place','Electric Company','States Ave','Virginia Ave','Pennsylvania RR','St. James Place','Community Chest','Tennessee Ave','New York Ave',
-      'Free Parking','Kentucky Ave','Chance','Indiana Ave','Illinois Ave','B. & O. RR','Atlantic Ave','Ventnor Ave','Water Works','Marvin Gardens',
-      'Go To Jail','Pacific Ave','North Carolina Ave','Community Chest','Pennsylvania Ave','Short Line','Chance','Park Place','Luxury Tax','Boardwalk'
+      'Welcome to the Strip','Fremont Street','Lucky Chance','Slot Alley','Neon Bazaar','Bellagio Fountain','Blackjack Table','Royal Arcade','Viva Vegas','Slot Palace',
+      'The Mirage','Roulette Row','Sands Hotel','High Roller Ave','Baccarat Lounge','MGM Grand','Blackjack Lounge','Lucky Chance','Resort Drive','Roulette Court',
+      'Poolside Park','Caesars Palace','Poker Promenade','The Venetian','Blackjack Den','Downtown Casino','Mega Slots','Circus Corner','Showroom Blvd','Neon Works',
+      'Outlet Row','Slot Junction','Desert Road','Lucky Chance','Penthouse Ave','The Strip North','Roulette Terrace','Luxury Tax','Baccarat Suites','Boardwalk Casino'
     ];
     return names[i] || `Square ${i}`;
   }
@@ -216,14 +351,18 @@ class Game {
     t.className = `token p${player.id}`;
     t.title = player.name;
     // compute position relative to board
-    const left = rectCell.left - rectBoard.left + (rectCell.width - 14)/2;
-    const top = rectCell.top - rectBoard.top + (rectCell.height - 14)/2;
+    const left = rectCell.left - rectBoard.left + (rectCell.width - 18)/2;
+    const top = rectCell.top - rectBoard.top + (rectCell.height - 18)/2;
     t.style.position = 'absolute';
     t.style.left = `${left}px`;
     t.style.top = `${top}px`;
     t.style.width = '18px';
     t.style.height = '18px';
-    t.style.borderRadius = '50%';
+    // inner element holds color and rotation
+    const inner = document.createElement('div');
+    inner.className = 'token-inner';
+    inner.style.transform = 'rotate(0deg)';
+    t.appendChild(inner);
     this.boardEl.appendChild(t);
     // animate token appearing
     requestAnimationFrame(()=> t.classList.add('appear'));
@@ -240,9 +379,24 @@ class Game {
       this.placeToken(p);
     });
     this.updateStatus();
+    // update center panel with active player info
+    try{
+      const centerInner = this.boardEl.querySelector('.board-center .center-inner');
+      if(centerInner){
+        const cur = this.players[this.current];
+        if(cur){
+          centerInner.innerHTML = `<h2>${cur.name}</h2><p>Money: <strong>${cur.money}$</strong></p><p style="margin-top:8px;color:var(--muted);font-size:13px">Position: ${this.squareLabel(cur.pos)}</p>`;
+          centerInner.classList.add('pulse');
+          setTimeout(()=> centerInner.classList.remove('pulse'), 700);
+        } else {
+          centerInner.innerHTML = `<h2>GamBoard</h2><p>Roll dice, land on spaces, play mini-games.</p>`;
+        }
+      }
+    }catch(e){/* ignore */}
   }
 
   updateStatus(){
+    if(this.gameOver){ this.statusEl.textContent = 'Game over.'; if(this.rollBtn) this.rollBtn.disabled = true; if(this.endTurnBtn) this.endTurnBtn.disabled = true; return; }
     if(this.players.length===0){ this.statusEl.textContent='No players yet.'; this.rollBtn.disabled=true; this.endTurnBtn.disabled=true; }
     else{ this.statusEl.textContent = `Current: ${this.players[this.current].name}`; this.rollBtn.disabled=false; this.endTurnBtn.disabled=false; }
     this.bankEl.textContent = `Bank: ${this.bank}$`;
@@ -326,12 +480,31 @@ class Game {
         const y = cy + radius * Math.sin(angle) - token.offsetHeight/2;
         token.style.left = `${x}px`;
         token.style.top = `${y}px`;
+        // rotate inner to face travel direction (tangent)
+        const tangent = angle + Math.PI/2;
+        const deg = tangent * 180 / Math.PI;
+        const inner = token.querySelector('.token-inner');
+        if(inner) inner.style.transform = `rotate(${deg}deg)`;
         if(t<1){ rafId = requestAnimationFrame(stepFn); }
-        else { if(rafId) cancelAnimationFrame(rafId); token.style.zIndex = ''; resolve(); }
+        else {
+          if(rafId) cancelAnimationFrame(rafId);
+          token.style.zIndex = '';
+          // arrival: small bob to celebrate landing
+          token.classList.add('bob');
+          setTimeout(()=> token.classList.remove('bob'), 700);
+          if(timeoutId) clearTimeout(timeoutId);
+          resolve();
+        }
       };
       rafId = requestAnimationFrame(stepFn);
-      // safety timeout
-      setTimeout(()=>{ if(rafId) cancelAnimationFrame(rafId); resolve(); }, duration + 200);
+      // safety timeout (in case RAF stalls) — will add bob and resolve
+      let timeoutId = setTimeout(()=>{
+        if(rafId) cancelAnimationFrame(rafId);
+        token.style.zIndex = '';
+        token.classList.add('bob');
+        setTimeout(()=> token.classList.remove('bob'), 700);
+        resolve();
+      }, duration + 300);
     });
   }
 
@@ -351,10 +524,10 @@ class Game {
       this.showMiniGameConfirm(player, mini, label);
       return; // wait until user confirms/cancels
     }
-    // basic negative money check
-    if(player.money < 0){ this.log(`${player.name} is bankrupt! Removing from game.`); this.players = this.players.filter(p=>p.money>=0); if(this.current>=this.players.length) this.current=0; }
+    // save and render, then check for game over
     this.save();
     this.renderPlayers();
+    if(this.checkGameOver()) return;
   }
 
   showMiniGameConfirm(player, mini, label){
@@ -390,11 +563,25 @@ class Game {
   // return mini-game page for a given perimeter index (or null)
   getMiniGameForIndex(i){
     // map specific indices to mini-games (adjustable)
+    // spread casino tiles around the board so landing can open a mini-game
     const map = {
+      // Blackjack tables
+      6: 'black-jack.html',
       16: 'black-jack.html',
+      24: 'black-jack.html',
+      // Slots
+      3: 'slots.html',
+      9: 'slots.html',
       26: 'slots.html',
+      31: 'slots.html',
+      // Roulette
+      11: 'roulette.html',
+      19: 'roulette.html',
       36: 'roulette.html',
+      // Baccarat
+      14: 'backarat.html',
       38: 'backarat.html',
+      // Chance / small events
       2: 'chance.html',
       17: 'chance.html',
       33: 'chance.html'
