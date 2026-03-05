@@ -88,48 +88,62 @@ class Game {
   }
 
   buildBoard(){
-    // build an 11x11 grid where the perimeter represents 40 squares
+    // build circular board with tiles placed around a circle (40 tiles)
     this.boardEl.innerHTML = '';
-    const size = 11;
-    for(let r=0;r<size;r++){
-      for(let c=0;c<size;c++){
-        const div = document.createElement('div');
-        div.className = 'cell';
-        // perimeter cells only get an index
-        if(r===0 || r===size-1 || c===0 || c===size-1){
-          const pos = this.coordsToIndex(r,c,size);
-          div.classList.add('perimeter');
-          div.dataset.index = pos;
-          const label = document.createElement('div');
-          label.className = 'label';
-          label.textContent = this.squareLabel(pos);
-          div.appendChild(label);
-          // mark mini-game tiles visually
-          const mg = this.getMiniGameForIndex(pos);
-          if(mg){
-            div.classList.add('tile-mini');
-            const icon = document.createElement('div'); icon.className='mini-icon';
-            if(mg.includes('black-jack')) icon.textContent = 'BJ';
-            else if(mg.includes('slots')) icon.textContent = 'S';
-            else if(mg.includes('roulette')) icon.textContent = 'R';
-            else if(mg.includes('backarat')) icon.textContent = 'B';
-            else icon.textContent = '★';
-            div.appendChild(icon);
-          }
-        } else {
-          div.classList.add('center');
-        }
-        this.boardEl.appendChild(div);
+    const tileCount = this.boardSize; // 40
+    const tileSize = 84; // must match CSS .cell size
+    // create tile elements
+    for(let i=0;i<tileCount;i++){
+      const div = document.createElement('div');
+      div.className = 'cell perimeter';
+      div.dataset.index = i;
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = this.squareLabel(i);
+      div.appendChild(label);
+      // add mini-game icon if mapped
+      const mg = this.getMiniGameForIndex(i);
+      if(mg){
+        div.classList.add('tile-mini');
+        const icon = document.createElement('div'); icon.className='mini-icon';
+        if(mg.includes('black-jack')) icon.textContent = 'BJ';
+        else if(mg.includes('slots')) icon.textContent = 'S';
+        else if(mg.includes('roulette')) icon.textContent = 'R';
+        else if(mg.includes('backarat')) icon.textContent = 'B';
+        else icon.textContent = '★';
+        div.appendChild(icon);
       }
+      // temporarily position at 0, we'll set proper coords after appending
+      div.style.left = '0px'; div.style.top = '0px';
+      this.boardEl.appendChild(div);
     }
-    // add a single large center panel that spans the interior
+
+    // add a circular center panel
     const center = document.createElement('div');
     center.className = 'board-center';
     center.innerHTML = `<div class="center-inner"><h2>GamBoard</h2><p>Roll dice, land on spaces, play mini-games.</p></div>`;
-    // position the center overlay using grid lines (2..11 exclusive)
-    center.style.gridColumn = '2 / 11';
-    center.style.gridRow = '2 / 11';
     this.boardEl.appendChild(center);
+
+    // position tiles around the circle
+    const rect = this.boardEl.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const radius = Math.min(cx,cy) - tileSize/2 - 18; // padding
+    for(let i=0;i<tileCount;i++){
+      const theta = (i / tileCount) * Math.PI * 2 - Math.PI/2; // start at top
+      const x = cx + radius * Math.cos(theta) - tileSize/2;
+      const y = cy + radius * Math.sin(theta) - tileSize/2;
+      const el = this.boardEl.querySelector(`.cell[data-index="${i}"]`);
+      if(el){
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        // rotate label for legibility
+        const rot = (theta * 180 / Math.PI) + 90;
+        const label = el.querySelector('.label');
+        if(label){ label.style.transform = `rotate(${rot}deg)`; label.style.fontSize='11px'; }
+      }
+    }
+
     // place tokens for existing players
     this.players.forEach(p=>this.placeToken(p));
   }

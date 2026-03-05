@@ -12,8 +12,8 @@ header h1{margin:0;font-size:20px}
 .tag{color:var(--muted);margin-top:6px}
 .container{display:flex;gap:20px;padding:20px}
 .board-and-controls{flex:1;display:flex;gap:20px}
-.board{background:linear-gradient(180deg,#183047,#123243);padding:12px;border-radius:10px;display:grid;grid-template-columns:repeat(11,64px);grid-auto-rows:64px;gap:8px;align-content:start;justify-content:center}
-.board .cell{background:rgba(255,255,255,0.03);border-radius:6px;padding:6px;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;width:64px;height:64px}
+.board{background:linear-gradient(180deg,#183047,#123243);padding:12px;border-radius:50%;position:relative;width:760px;height:760px;margin:0 auto;display:block;box-sizing:content-box}
+.board .cell{background:rgba(255,255,255,0.03);border-radius:8px;padding:6px;position:absolute;display:flex;flex-direction:column;justify-content:center;align-items:center;width:84px;height:84px}
 .board .cell .label{font-size:11px;color:var(--muted);text-align:center}
 .controls{width:360px;background:var(--card);padding:12px;border-radius:8px}
 .controls .players{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
@@ -63,8 +63,15 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 .result-lose{color:#ff9b9b}
 
 /* center panel overlay */
-.board-center{background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.28));border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--white);text-align:center;padding:18px}
-.board-center .center-inner{max-width:420px}
+.board-center{position:absolute;left:50%;top:50%;width:420px;height:420px;transform:translate(-50%,-50%);background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.28));border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);text-align:center;padding:18px}
+.board-center .center-inner{max-width:320px}
+
+/* Responsive: scale board on smaller screens */
+@media (max-width:900px){
+  .board{width:90vw;height:90vw}
+  .board .cell{width:calc(90vw / 9);height:calc(90vw / 9)}
+  .board-center{width:60vw;height:60vw}
+}
 
 /* mini-game tile visuals */
 .cell.perimeter.tile-mini{background:linear-gradient(180deg,rgba(255,204,51,0.06),rgba(0,0,0,0.02));border:1px solid rgba(255,204,51,0.08)}
