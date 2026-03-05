@@ -124,25 +124,56 @@ class Game {
     center.innerHTML = `<div class="center-inner"><h2>GamBoard</h2><p>Roll dice, land on spaces, play mini-games.</p></div>`;
     this.boardEl.appendChild(center);
 
-    // position tiles around the circle
-    const rect = this.boardEl.getBoundingClientRect();
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const radius = Math.min(cx,cy) - tileSize/2 - 18; // padding
-    for(let i=0;i<tileCount;i++){
-      const theta = (i / tileCount) * Math.PI * 2 - Math.PI/2; // start at top
-      const x = cx + radius * Math.cos(theta) - tileSize/2;
-      const y = cy + radius * Math.sin(theta) - tileSize/2;
-      const el = this.boardEl.querySelector(`.cell[data-index="${i}"]`);
-      if(el){
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
-        // rotate label for legibility
-        const rot = (theta * 180 / Math.PI) + 90;
-        const label = el.querySelector('.label');
-        if(label){ label.style.transform = `rotate(${rot}deg)`; label.style.fontSize='11px'; }
+    const positionTiles = ()=>{
+      const rect = this.boardEl.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      // choose a radius leaving room for tiles and padding
+      let maxRadius = Math.min(cx, cy) - 36; // leave padding
+      if(maxRadius < 80) maxRadius = Math.min(cx, cy) - 12;
+      // circumference and arc per tile
+      const circumference = Math.max(1, 2 * Math.PI * maxRadius);
+      const arc = circumference / tileCount;
+      // base css tile size (from stylesheet) - try first tile element
+      let cssTileSize = tileSize;
+      const sample = this.boardEl.querySelector('.cell');
+      if(sample){ cssTileSize = Math.max(32, Math.min(tileSize, sample.offsetWidth || tileSize)); }
+      // desired tile size should not exceed available arc length (with some padding)
+      const desiredTileSize = Math.min(cssTileSize, arc * 0.85);
+      // final radius adjusted so tiles sit nicely (ensure positive)
+      const finalRadius = Math.max( (Math.min(cx,cy) - desiredTileSize/2 - 18), 40 );
+
+      for(let i=0;i<tileCount;i++){
+        const theta = (i / tileCount) * Math.PI * 2 - Math.PI/2; // start at top
+        const x = cx + finalRadius * Math.cos(theta) - desiredTileSize/2;
+        const y = cy + finalRadius * Math.sin(theta) - desiredTileSize/2;
+        const el = this.boardEl.querySelector(`.cell[data-index="${i}"]`);
+        if(el){
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+          el.style.width = `${desiredTileSize}px`;
+          el.style.height = `${desiredTileSize}px`;
+          // rotate label for legibility — keep text upright by rotating opposite half-turn when needed
+          const deg = theta * 180 / Math.PI;
+          const label = el.querySelector('.label');
+          if(label){
+            // rotate so label faces outward roughly
+            const rot = deg + 90;
+            label.style.transform = `rotate(${rot}deg)`;
+            label.style.fontSize = Math.max(9, Math.min(12, desiredTileSize/7)) + 'px';
+          }
+        }
       }
-    }
+    };
+
+    // call once to position now
+    positionTiles();
+    // recompute on resize with debounce
+    let resizeTimer = null;
+    window.addEventListener('resize', ()=>{
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(()=> positionTiles(), 150);
+    });
 
     // place tokens for existing players
     this.players.forEach(p=>this.placeToken(p));
