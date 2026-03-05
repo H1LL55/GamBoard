@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GamBoard</title>
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <meta name="description" content="GamBoard - a dice-roll boardgame with mini-casino encounters">
+  <script defer src="js/game.js"></script>
+ </head>
+<body>
+  <header>
+    <h1>GamBoard</h1>
+    <p class="tag">Dice, move, play mini-casino games, and be the richest player.</p>
+  </header>
+
+  <main class="container">
+    <section class="board-and-controls">
+      <div id="board" class="board" aria-label="Game board"></div>
+
+      <div class="controls">
+        <div id="status" class="status">Loading game...</div>
+        <div class="players" id="players"></div>
+        <div class="controls-row">
+          <button id="rollBtn">Roll Dice</button>
+          <button id="endTurnBtn">End Turn</button>
+          <button id="addPlayerBtn">Add Player</button>
+        </div>
+        <div class="dice" id="dice">—</div>
+        <div class="log" id="log"></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <h2>Bank</h2>
+      <div id="bank">Bank: 0</div>
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="black-jack.html">Blackjack (mini-game)</a></li>
+        <li><a href="slots.html">Slots (mini-game)</a></li>
+        <li><a href="roulette.html">Roulette (mini-game)</a></li>
+        <li><a href="chance.html">Chance</a></li>
+      </ul>
+    </aside>
+  </main>
+
+  <footer>
+    <small>Local hotseat multiplayer. Turn-based. Your browser stores progress in localStorage.</small>
+  </footer>
+</body>
+</html>
