@@ -201,24 +201,30 @@ class Game {
   }
 
   placeToken(player){
-    // remove existing token for player
+    // place token as an absolute child of the board so we can animate movement between tiles
+    // remove any existing token for this player
     const existing = this.boardEl.querySelector(`.token.p${player.id}`);
     if(existing) existing.remove();
     const cell = this.boardEl.querySelector(`.cell[data-index="${player.pos}"]`);
     if(!cell) return;
+    const rectBoard = this.boardEl.getBoundingClientRect();
+    const rectCell = cell.getBoundingClientRect();
     const t = document.createElement('div');
     t.className = `token p${player.id}`;
     t.title = player.name;
-    // stack tokens in corners when multiple
-    const count = this.players.filter(p=>p.pos===player.pos).length;
-    t.style.left = (6 + (player.id*16))+'px';
-    t.style.top = (6)+'px';
-    cell.appendChild(t);
+    // compute position relative to board
+    const left = rectCell.left - rectBoard.left + (rectCell.width - 14)/2;
+    const top = rectCell.top - rectBoard.top + (rectCell.height - 14)/2;
+    t.style.position = 'absolute';
+    t.style.left = `${left}px`;
+    t.style.top = `${top}px`;
+    t.style.width = '18px';
+    t.style.height = '18px';
+    t.style.borderRadius = '50%';
+    this.boardEl.appendChild(t);
     // animate token appearing
-    requestAnimationFrame(()=>{
-      t.classList.add('appear');
-    });
-    setTimeout(()=>{ t.classList.remove('appear'); }, 800);
+    requestAnimationFrame(()=> t.classList.add('appear'));
+    setTimeout(()=> t.classList.remove('appear'), 800);
   }
 
   renderPlayers(){
@@ -253,11 +259,63 @@ class Game {
 
   movePlayer(player,steps){
     const start = player.pos;
-    player.pos = (player.pos + steps) % this.boardSize;
-    this.log(`${player.name} moved from ${this.squareLabel(start)} to ${this.squareLabel(player.pos)}`);
-    this.save();
-    this.renderPlayers();
-    this.handleLanding(player);
+    const endPos = (player.pos + steps) % this.boardSize;
+    // animate movement along the board, then update state and handle landing
+    this.animateMove(player, start, endPos).then(()=>{
+      player.pos = endPos;
+      this.log(`${player.name} moved from ${this.squareLabel(start)} to ${this.squareLabel(player.pos)}`);
+      this.save();
+      this.renderPlayers();
+      this.handleLanding(player);
+    }).catch(()=>{
+      // fallback: immediate move
+      player.pos = endPos;
+      this.log(`${player.name} moved from ${this.squareLabel(start)} to ${this.squareLabel(player.pos)}`);
+      this.save();
+      this.renderPlayers();
+      this.handleLanding(player);
+    });
+  }
+
+  // animate a player's token from start index to end index (instant if same)
+  animateMove(player, startIndex, endIndex){
+    return new Promise((resolve)=>{
+      if(startIndex === endIndex){ resolve(); return; }
+      const token = this.boardEl.querySelector(`.token.p${player.id}`) || null;
+      // if no token exists yet, place one without animation
+      if(!token){ this.placeToken(player); resolve(); return; }
+      const startCell = this.boardEl.querySelector(`.cell[data-index="${startIndex}"]`);
+      const endCell = this.boardEl.querySelector(`.cell[data-index="${endIndex}"]`);
+      if(!startCell || !endCell){ resolve(); return; }
+      const rectBoard = this.boardEl.getBoundingClientRect();
+      const rectStart = startCell.getBoundingClientRect();
+      const rectEnd = endCell.getBoundingClientRect();
+      const startX = rectStart.left - rectBoard.left + (rectStart.width - token.offsetWidth)/2;
+      const startY = rectStart.top - rectBoard.top + (rectStart.height - token.offsetHeight)/2;
+      const endX = rectEnd.left - rectBoard.left + (rectEnd.width - token.offsetWidth)/2;
+      const endY = rectEnd.top - rectBoard.top + (rectEnd.height - token.offsetHeight)/2;
+
+      // ensure token is positioned absolutely within board
+      token.style.position = 'absolute';
+      token.style.left = `${startX}px`;
+      token.style.top = `${startY}px`;
+      // apply transition for smooth travel
+      token.style.transition = 'left 650ms cubic-bezier(.2,.9,.2,1), top 650ms cubic-bezier(.2,.9,.2,1)';
+      // force style flush
+      // eslint-disable-next-line no-unused-expressions
+      token.offsetWidth;
+      token.style.left = `${endX}px`;
+      token.style.top = `${endY}px`;
+      const onEnd = (e)=>{
+        token.removeEventListener('transitionend', onEnd);
+        // clear inline transition so future moves can set it
+        token.style.transition = '';
+        resolve();
+      };
+      token.addEventListener('transitionend', onEnd);
+      // safety fallback: resolve after duration
+      setTimeout(()=>{ try{ token.removeEventListener('transitionend', onEnd); }catch(e){} resolve(); }, 900);
+    });
   }
 
   handleLanding(player){

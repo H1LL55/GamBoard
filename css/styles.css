@@ -41,7 +41,7 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 .cell .label{font-size:12px;color:var(--muted);text-align:center;padding:2px}
 .player.active{outline:2px solid var(--accent);background:linear-gradient(90deg,rgba(255,204,51,0.12),transparent)}
 
-.token{transition:transform 360ms cubic-bezier(.2,.9,.2,1),opacity 260ms ease;opacity:0;transform:scale(0.6) translateY(-6px)}
+.token{transition:transform 360ms cubic-bezier(.2,.9,.2,1),opacity 260ms ease;opacity:0;transform:scale(0.6) translateY(-6px);position:absolute}
 .token.appear{opacity:1;transform:scale(1) translateY(0)}
 
 /* card visuals used by mini-games */
