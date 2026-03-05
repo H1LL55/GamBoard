@@ -8,10 +8,73 @@
 	<link rel="stylesheet" href="css/styles.css">
  </head>
 <body>
-	<main style="padding:24px">
-		<h1>Roulette (mini-game placeholder)</h1>
-		<p>Placeholder roulette. Implement betting and spin here.</p>
-		<p><a href="index.html">Return to main board</a></p>
+	<main style="padding:24px;max-width:720px;margin:auto">
+		<h1>Roulette</h1>
+		<div id="playerSelect"></div>
+		<div id="rouletteArea" style="display:none">
+			<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+				<label>Bet: $<input id="bet" type="number" min="1" value="10" style="width:100px"></label>
+				<label>Type:
+					<select id="betType">
+						<option value="color">Color (red/black) 1:1</option>
+						<option value="number">Number (0-36) 35:1</option>
+					</select>
+				</label>
+				<input id="betVal" placeholder="red/black or number" style="width:150px">
+				<button id="spinBtn">Spin</button>
+				<button id="backBtn">Return</button>
+			</div>
+			<div id="wheel" style="margin-top:20px;font-size:48px;text-align:center">—</div>
+			<div id="result" style="margin-top:12px;font-weight:700"></div>
+		</div>
+
+		<p style="margin-top:18px"><a href="index.html">Return to main board</a></p>
 	</main>
+
+	<script>
+		const playerSelectEl = document.getElementById('playerSelect');
+		const rouletteArea = document.getElementById('rouletteArea');
+		const spinBtn = document.getElementById('spinBtn');
+		const backBtn = document.getElementById('backBtn');
+		const betInput = document.getElementById('bet');
+		const betType = document.getElementById('betType');
+		const betVal = document.getElementById('betVal');
+		const wheel = document.getElementById('wheel');
+		const resultEl = document.getElementById('result');
+
+		function readState(){ const raw=localStorage.getItem('gamboard_state'); return raw?JSON.parse(raw):{players:[],current:0,bank:0}; }
+		function saveState(s){ localStorage.setItem('gamboard_state', JSON.stringify(s)); }
+
+		let state = readState(), curPlayer=null;
+
+		function listPlayers(){ state = readState(); if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; } let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>'; playerSelectEl.innerHTML = html; document.getElementById('chooseBtn').addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } rouletteArea.style.display='block'; playerSelectEl.style.display='none'; }); }
+
+		function spin(){ const bet = Math.max(1, Math.floor(Number(betInput.value)||1)); if(bet>curPlayer.money){ alert('Bet exceeds money'); return; }
+			const type = betType.value; const val = betVal.value.trim().toLowerCase(); resultEl.textContent='';
+			// simulate spin
+			wheel.textContent='Spinning…'; spinBtn.disabled=true;
+			setTimeout(()=>{
+				const number = Math.floor(Math.random()*37); // 0..36
+				const red = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(number);
+				const color = number===0? 'green' : (red? 'red':'black');
+				wheel.textContent = `${number} ${color}`;
+				// evaluate
+				state = readState(); const p = state.players.find(x=>x.id==curPlayer.id);
+				if(type==='color'){
+					if(val!== 'red' && val!=='black'){ alert('Enter red or black'); spinBtn.disabled=false; return; }
+					if(val===color){ p.money += bet; resultEl.textContent = `You won $${bet}`; } else { p.money -= bet; resultEl.textContent = `You lost $${bet}`; }
+				} else {
+					const n = Number(val);
+					if(isNaN(n) || n<0 || n>36){ alert('Enter number 0-36'); spinBtn.disabled=false; return; }
+					if(n===number){ p.money += bet*35; resultEl.textContent = `You hit ${n}! You won $${bet*35}`; } else { p.money -= bet; resultEl.textContent = `You lost $${bet}`; }
+				}
+				saveState(state); listPlayers(); spinBtn.disabled=false;
+			}, 900);
+		}
+
+		spinBtn.addEventListener('click', spin);
+		backBtn.addEventListener('click', ()=>{ window.location.href='index.html' });
+		listPlayers();
+	</script>
 </body>
 </html>

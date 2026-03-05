@@ -8,10 +8,68 @@
 	<link rel="stylesheet" href="css/styles.css">
  </head>
 <body>
-	<main style="padding:24px">
-		<h1>Slots (mini-game placeholder)</h1>
-		<p>Placeholder slot machine. Implement reels and payouts here.</p>
-		<p><a href="index.html">Return to main board</a></p>
+	<main style="padding:24px;max-width:720px;margin:auto">
+		<h1>Slots</h1>
+		<div id="playerSelect"></div>
+
+		<div id="slotArea" style="display:none">
+			<div style="display:flex;gap:12px;align-items:center">
+				<label>Bet: $<input id="bet" type="number" min="1" value="10" style="width:100px"></label>
+				<button id="spinBtn">Spin</button>
+				<button id="backBtn">Return</button>
+			</div>
+			<div style="margin-top:16px;display:flex;gap:12px;align-items:center;font-size:36px;justify-content:center">
+				<div id="r0">—</div>
+				<div id="r1">—</div>
+				<div id="r2">—</div>
+			</div>
+			<div id="payout" style="margin-top:12px;font-weight:700"></div>
+		</div>
+
+		<p style="margin-top:18px"><a href="index.html">Return to main board</a></p>
 	</main>
+
+	<script>
+		const playerSelectEl = document.getElementById('playerSelect');
+		const slotArea = document.getElementById('slotArea');
+		const spinBtn = document.getElementById('spinBtn');
+		const backBtn = document.getElementById('backBtn');
+		const betInput = document.getElementById('bet');
+		const reels = [document.getElementById('r0'), document.getElementById('r1'), document.getElementById('r2')];
+		const payoutEl = document.getElementById('payout');
+
+		function readState(){ const raw=localStorage.getItem('gamboard_state'); return raw?JSON.parse(raw):{players:[],current:0,bank:0}; }
+		function saveState(s){ localStorage.setItem('gamboard_state', JSON.stringify(s)); }
+
+		let state = readState(); let curPlayer=null;
+		const symbols = ['🍒','🔔','🍋','⭐','7'];
+
+		function listPlayers(){ state = readState(); if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; }
+			let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>'; playerSelectEl.innerHTML = html; document.getElementById('chooseBtn').addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } slotArea.style.display='block'; playerSelectEl.style.display='none'; }); }
+
+		function spin(){ const bet = Math.max(1, Math.floor(Number(betInput.value)||1)); if(bet>curPlayer.money){ alert('Bet exceeds money'); return; }
+			payoutEl.textContent='Spinning...'; spinBtn.disabled=true; const res = [];
+			// simple random reels
+			for(let i=0;i<3;i++){ res[i]=symbols[Math.floor(Math.random()*symbols.length)]; reels[i].textContent=''; }
+			// animate
+			let step=0; const iv = setInterval(()=>{
+				for(let i=0;i<3;i++) reels[i].textContent = symbols[Math.floor(Math.random()*symbols.length)];
+				step++; if(step>20){ clearInterval(iv); for(let i=0;i<3;i++) reels[i].textContent = res[i]; evaluate(res,bet); spinBtn.disabled=false; }
+			},80);
+		}
+
+		function evaluate(res,bet){ // payouts: 3x7 = 50x, three of same = 10x, two of same = 2x
+			const counts = {};
+			for(const s of res) counts[s] = (counts[s]||0)+1;
+			let payout=0; if(counts['7']===3) payout = bet*50; else if(Object.values(counts).includes(3)) payout = bet*10; else if(Object.values(counts).includes(2)) payout = bet*2; else payout=0;
+			state = readState(); const p = state.players.find(x=>x.id==curPlayer.id);
+			if(payout>0){ p.money += payout; payoutEl.textContent = `You won $${payout}`; } else { p.money -= bet; payoutEl.textContent = `You lost $${bet}`; }
+			saveState(state); listPlayers();
+		}
+
+		spinBtn.addEventListener('click', spin);
+		backBtn.addEventListener('click', ()=>{ window.location.href='index.html' });
+		listPlayers();
+	</script>
 </body>
 </html>

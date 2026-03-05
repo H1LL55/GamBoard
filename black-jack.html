@@ -8,10 +8,155 @@
 	<link rel="stylesheet" href="css/styles.css">
  </head>
 <body>
-	<main style="padding:24px">
-		<h1>Blackjack (mini-game placeholder)</h1>
-		<p>This is a placeholder mini-game. You can implement the full blackjack rules here if you want.</p>
-		<p><a href="index.html">Return to main board</a></p>
+	<main style="padding:24px;max-width:720px;margin:auto">
+		<h1>Blackjack</h1>
+
+		<div id="playerSelect"></div>
+
+		<div id="gameArea" style="display:none">
+			<div style="display:flex;gap:12px;align-items:center">
+				<label>Bet: $<input id="bet" type="number" min="1" value="50" style="width:100px"></label>
+				<button id="dealBtn">Deal</button>
+				<button id="hitBtn" disabled>Hit</button>
+				<button id="standBtn" disabled>Stand</button>
+				<button id="backBtn">Return</button>
+			</div>
+
+			<section style="margin-top:12px;display:flex;gap:24px">
+				<div style="flex:1">
+					<h3>Player</h3>
+					<div id="playerCards" style="min-height:40px"></div>
+					<div id="playerTotal"></div>
+				</div>
+				<div style="flex:1">
+					<h3>Dealer</h3>
+					<div id="dealerCards" style="min-height:40px"></div>
+					<div id="dealerTotal"></div>
+				</div>
+			</section>
+
+			<div id="result" style="margin-top:12px;font-weight:700"></div>
+		</div>
+
+		<p style="margin-top:18px"><a href="index.html">Return to main board</a></p>
 	</main>
+
+	<script>
+		// Simple Blackjack implementation (no splitting, no insurance, dealer stands on 17)
+		const playerSelectEl = document.getElementById('playerSelect');
+		const gameArea = document.getElementById('gameArea');
+		const betInput = document.getElementById('bet');
+		const dealBtn = document.getElementById('dealBtn');
+		const hitBtn = document.getElementById('hitBtn');
+		const standBtn = document.getElementById('standBtn');
+		const backBtn = document.getElementById('backBtn');
+		const playerCardsEl = document.getElementById('playerCards');
+		const dealerCardsEl = document.getElementById('dealerCards');
+		const playerTotalEl = document.getElementById('playerTotal');
+		const dealerTotalEl = document.getElementById('dealerTotal');
+		const resultEl = document.getElementById('result');
+
+		function readState(){
+			const raw = localStorage.getItem('gamboard_state');
+			return raw ? JSON.parse(raw) : {players:[], current:0, bank:0};
+		}
+		function saveState(s){ localStorage.setItem('gamboard_state', JSON.stringify(s)); }
+
+		let state = readState();
+		let curPlayer = null;
+		let deck = [];
+		let playerHand = [], dealerHand = [];
+
+		function buildDeck(){
+			const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+			const suits = ['♠','♥','♦','♣'];
+			const d = [];
+			for(const r of ranks) for(const s of suits) d.push({r,s});
+			// shuffle
+			for(let i=d.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [d[i],d[j]]=[d[j],d[i]]; }
+			return d;
+		}
+
+		function valueOf(hand){
+			let total=0, aces=0;
+			for(const c of hand){
+				const r = c.r;
+				if(r==='A'){ aces++; total+=11; }
+				else if(['J','Q','K'].includes(r)) total+=10;
+				else total+=parseInt(r,10);
+			}
+			while(total>21 && aces>0){ total-=10; aces--; }
+			return total;
+		}
+
+		function renderHands(){
+			playerCardsEl.textContent = playerHand.map(c=>c.r+c.s).join(' ');
+			dealerCardsEl.textContent = dealerHand.map((c,i)=> i===0 && !standBtn.disabled ? (c.r+'?') : c.r+c.s).join(' ');
+			playerTotalEl.textContent = `Total: ${valueOf(playerHand)}`;
+			dealerTotalEl.textContent = standBtn.disabled ? `Total: ${valueOf(dealerHand)}` : `Total: ?`;
+		}
+
+		function listPlayers(){
+			state = readState();
+			if(!state.players || state.players.length===0){ playerSelectEl.innerHTML = '<div>No players found. Return to board and add players.</div>'; return; }
+			let html = '<label>Choose player: <select id="playerSel">';
+			for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`;
+			html += '</select></label>';
+			html += ' <button id="chooseBtn">Play</button>';
+			playerSelectEl.innerHTML = html;
+			document.getElementById('chooseBtn').addEventListener('click', ()=>{
+				const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; }
+				gameArea.style.display='block'; playerSelectEl.style.display='none'; resultEl.textContent=''; renderUI();
+			});
+		}
+
+		function renderUI(){
+			betInput.max = curPlayer.money;
+		}
+
+		dealBtn.addEventListener('click', ()=>{
+			const bet = Math.max(1, Math.floor(Number(betInput.value)||1));
+			if(bet>curPlayer.money){ alert('Bet exceeds money'); return; }
+			deck = buildDeck(); playerHand=[]; dealerHand=[]; resultEl.textContent='';
+			playerHand.push(deck.pop(), deck.pop()); dealerHand.push(deck.pop(), deck.pop());
+			hitBtn.disabled=false; standBtn.disabled=false; dealBtn.disabled=true; betInput.disabled=true;
+			renderHands();
+			// immediate blackjack check
+			const pv = valueOf(playerHand); const dv = valueOf(dealerHand);
+			if(pv===21){ settle(bet, 'blackjack'); }
+		});
+
+		hitBtn.addEventListener('click', ()=>{
+			playerHand.push(deck.pop()); renderHands();
+			const pv = valueOf(playerHand); if(pv>21){ settle(Number(betInput.value), 'bust'); }
+		});
+
+		standBtn.addEventListener('click', ()=>{
+			// dealer draws until 17
+			while(valueOf(dealerHand)<17) dealerHand.push(deck.pop());
+			renderHands();
+			const bet = Number(betInput.value);
+			const pv = valueOf(playerHand); const dv = valueOf(dealerHand);
+			if(dv>21 || pv>dv) settle(bet,'win');
+			else if(pv===dv) settle(bet,'push');
+			else settle(bet,'lose');
+		});
+
+		function settle(bet, result){
+			hitBtn.disabled=true; standBtn.disabled=true; dealBtn.disabled=false; betInput.disabled=false;
+			state = readState(); // reload
+			const p = state.players.find(x=>x.id==curPlayer.id);
+			if(!p){ alert('Player not found in state'); return; }
+			if(result==='blackjack'){ const win = Math.floor(bet * 1.5); p.money += win; resultEl.textContent = `Blackjack! You win $${win}`; }
+			else if(result==='win'){ p.money += bet; resultEl.textContent = `You win $${bet}`; }
+			else if(result==='push'){ resultEl.textContent = `Push — no money lost.`; }
+			else if(result==='bust' || result==='lose'){ p.money -= bet; resultEl.textContent = `You lost $${bet}`; }
+			saveState(state); listPlayers(); renderHands();
+		}
+
+		backBtn.addEventListener('click', ()=>{ window.location.href='index.html'; });
+
+		listPlayers();
+	</script>
 </body>
 </html>
