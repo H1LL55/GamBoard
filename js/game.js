@@ -20,6 +20,20 @@ class Game {
     this.cacheElements();
     this.buildBoard();
     this.bind();
+    // handle return from mini-game (auto-advance if requested)
+    try{
+      const params = new URLSearchParams(window.location.search);
+      if(params.get('return')==='board' && params.get('player')){
+        const advance = params.get('advance');
+        // clear querystring to avoid repeating this logic
+        history.replaceState(null,'', window.location.pathname);
+        this.log('Returned from mini-game.');
+        if(advance==='1'){
+          // advance turn once to move to next player
+          setTimeout(()=> this.endTurn(), 500);
+        }
+      }
+    }catch(e){/* ignore */}
     this.renderPlayers();
     this.log('Game ready. Add players to start.');
   }
@@ -90,6 +104,18 @@ class Game {
           label.className = 'label';
           label.textContent = this.squareLabel(pos);
           div.appendChild(label);
+          // mark mini-game tiles visually
+          const mg = this.getMiniGameForIndex(pos);
+          if(mg){
+            div.classList.add('tile-mini');
+            const icon = document.createElement('div'); icon.className='mini-icon';
+            if(mg.includes('black-jack')) icon.textContent = 'BJ';
+            else if(mg.includes('slots')) icon.textContent = 'S';
+            else if(mg.includes('roulette')) icon.textContent = 'R';
+            else if(mg.includes('backarat')) icon.textContent = 'B';
+            else icon.textContent = '★';
+            div.appendChild(icon);
+          }
         } else {
           div.classList.add('center');
         }
@@ -201,18 +227,44 @@ class Game {
     // mini-game redirects (open relevant mini-game page and pass player id)
     const mini = this.getMiniGameForIndex(s);
     if(mini){
-      this.log(`${player.name} landed on ${label} — opening ${mini}...`);
-      this.save();
-      // give the UI a moment to update then redirect
-      setTimeout(()=>{
-        window.location.href = mini + '?player=' + encodeURIComponent(player.id);
-      }, 350);
-      return; // stop further processing until player returns
+      // show confirmation modal to the user before redirecting
+      this.showMiniGameConfirm(player, mini, label);
+      return; // wait until user confirms/cancels
     }
     // basic negative money check
     if(player.money < 0){ this.log(`${player.name} is bankrupt! Removing from game.`); this.players = this.players.filter(p=>p.money>=0); if(this.current>=this.players.length) this.current=0; }
     this.save();
     this.renderPlayers();
+  }
+
+  showMiniGameConfirm(player, mini, label){
+    // ensure modal elements exist
+    const modal = document.getElementById('miniConfirm');
+    if(!modal){ this.log(`Opening ${mini}...`); this.save(); setTimeout(()=>{ window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&advance=1'; }, 350); return; }
+    const title = document.getElementById('modalTitle');
+    const body = document.getElementById('modalBody');
+    const confirm = document.getElementById('modalConfirm');
+    const cancel = document.getElementById('modalCancel');
+    title.textContent = `Enter ${label}?`;
+    body.textContent = `${player.name} landed on ${label}. Open the mini-game now?`;
+    modal.setAttribute('aria-hidden','false');
+    const onConfirm = ()=>{
+      modal.setAttribute('aria-hidden','true');
+      confirm.removeEventListener('click', onConfirm);
+      cancel.removeEventListener('click', onCancel);
+      this.save();
+      // redirect and ask mini-game to return and auto-advance
+      setTimeout(()=>{ window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&fromMini=' + encodeURIComponent(mini) + '&advance=1'; }, 200);
+    };
+    const onCancel = ()=>{
+      modal.setAttribute('aria-hidden','true');
+      confirm.removeEventListener('click', onConfirm);
+      cancel.removeEventListener('click', onCancel);
+      this.log(`${player.name} chose not to enter ${label}.`);
+      // keep playing
+    };
+    confirm.addEventListener('click', onConfirm);
+    cancel.addEventListener('click', onCancel);
   }
 
   // return mini-game page for a given perimeter index (or null)

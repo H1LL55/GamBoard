@@ -52,10 +52,20 @@
 			if(choice==='player'){ if(pVal>bVal){ p.money += bet; resultEl.textContent = `Player wins! You won $${bet}`; } else if(pVal===bVal){ resultEl.textContent='Tie — no money exchanged.'; } else { p.money -= bet; resultEl.textContent = `You lost $${bet}`; } }
 			else if(choice==='banker'){ if(bVal>pVal){ p.money += Math.floor(bet*0.95); resultEl.textContent = `Banker wins! You won $${Math.floor(bet*0.95)}`; } else if(pVal===bVal){ resultEl.textContent='Tie — no money exchanged.'; } else { p.money -= bet; resultEl.textContent = `You lost $${bet}`; } }
 			else { if(pVal===bVal){ p.money += bet*8; resultEl.textContent = `Tie! You won $${bet*8}`; } else { p.money -= bet; resultEl.textContent = `You lost $${bet}`; } }
-			saveState(state); listPlayers();
+					saveState(state); listPlayers();
+					// auto-return after short delay so player sees result
+					setTimeout(()=>{
+						const pid = curPlayer ? curPlayer.id : null;
+						const q = pid ? `?return=board&player=${encodeURIComponent(pid)}&fromMini=backarat&advance=1` : '?return=board';
+						window.location.href = 'index.html' + q;
+					}, 1200);
 		});
 
-		backBtn.addEventListener('click', ()=>{ window.location.href='index.html' });
+			backBtn.addEventListener('click', ()=>{
+				const pid = curPlayer ? curPlayer.id : null;
+				const q = pid ? `?return=board&player=${encodeURIComponent(pid)}&fromMini=backarat&advance=1` : '?return=board';
+				window.location.href = 'index.html' + q;
+			});
 		listPlayers();
 	</script>
 </body>

@@ -71,13 +71,23 @@
 			const counts = {};
 			for(const s of res) counts[s] = (counts[s]||0)+1;
 			let payout=0; if(counts['7']===3) payout = bet*50; else if(Object.values(counts).includes(3)) payout = bet*10; else if(Object.values(counts).includes(2)) payout = bet*2; else payout=0;
-			state = readState(); const p = state.players.find(x=>x.id==curPlayer.id);
-			if(payout>0){ p.money += payout; payoutEl.textContent = `You won $${payout}`; } else { p.money -= bet; payoutEl.textContent = `You lost $${bet}`; }
-			saveState(state); listPlayers();
+					state = readState(); const p = state.players.find(x=>x.id==curPlayer.id);
+					if(payout>0){ p.money += payout; payoutEl.textContent = `You won $${payout}`; } else { p.money -= bet; payoutEl.textContent = `You lost $${bet}`; }
+					saveState(state); listPlayers();
+					// auto-return after showing result
+					setTimeout(()=>{
+						const pid = curPlayer ? curPlayer.id : null;
+						const q = pid ? `?return=board&player=${encodeURIComponent(pid)}&fromMini=slots&advance=1` : '?return=board';
+						window.location.href = 'index.html' + q;
+					}, 1200);
 		}
 
 		spinBtn.addEventListener('click', spin);
-		backBtn.addEventListener('click', ()=>{ window.location.href='index.html' });
+			backBtn.addEventListener('click', ()=>{
+				const pid = curPlayer ? curPlayer.id : null;
+				const q = pid ? `?return=board&player=${encodeURIComponent(pid)}&fromMini=slots&advance=1` : '?return=board';
+				window.location.href = 'index.html' + q;
+			});
 		listPlayers();
 	</script>
 </body>

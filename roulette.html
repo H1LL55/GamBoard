@@ -81,12 +81,22 @@
 					if(isNaN(n) || n<0 || n>36){ alert('Enter number 0-36'); spinBtn.disabled=false; return; }
 					if(n===number){ p.money += bet*35; resultEl.textContent = `You hit ${n}! You won $${bet*35}`; } else { p.money -= bet; resultEl.textContent = `You lost $${bet}`; }
 				}
-								saveState(state); listPlayers(); spinBtn.disabled=false;
+												saveState(state); listPlayers(); spinBtn.disabled=false;
+												// auto-return after short delay so player sees result
+												setTimeout(()=>{
+													const pid = curPlayer ? curPlayer.id : null;
+													const q = pid ? `?return=board&player=${encodeURIComponent(pid)}&fromMini=roulette&advance=1` : '?return=board';
+													window.location.href = 'index.html' + q;
+												}, 1200);
 			}, 900);
 		}
 
-		spinBtn.addEventListener('click', spin);
-		backBtn.addEventListener('click', ()=>{ window.location.href='index.html' });
+			spinBtn.addEventListener('click', spin);
+			backBtn.addEventListener('click', ()=>{
+				const pid = curPlayer ? curPlayer.id : null;
+				const q = pid ? `?return=board&player=${encodeURIComponent(pid)}&fromMini=roulette&advance=1` : '?return=board';
+				window.location.href = 'index.html' + q;
+			});
 		listPlayers();
 	</script>
 </body>

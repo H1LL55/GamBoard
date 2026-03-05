@@ -45,6 +45,19 @@
     </aside>
   </main>
 
+  <!-- Confirmation modal for entering mini-games -->
+  <div id="miniConfirm" class="modal" role="dialog" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-panel" role="document">
+      <h3 id="modalTitle">Enter mini-game?</h3>
+      <p id="modalBody">Do you want to enter the mini-game?</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
+        <button id="modalConfirm">Yes, enter</button>
+        <button id="modalCancel">No, stay</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <small>Local hotseat multiplayer. Turn-based. Your browser stores progress in localStorage.</small>
   </footer>
