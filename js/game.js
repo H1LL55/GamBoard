@@ -143,6 +143,8 @@ class Game {
       // final radius adjusted so tiles sit nicely (ensure positive)
       const finalRadius = Math.max( (Math.min(cx,cy) - desiredTileSize/2 - 18), 40 );
 
+      // store computed positions for use during animations
+      this.tilePositions = [];
       for(let i=0;i<tileCount;i++){
         const theta = (i / tileCount) * Math.PI * 2 - Math.PI/2; // start at top
         const x = cx + finalRadius * Math.cos(theta) - desiredTileSize/2;
@@ -163,6 +165,7 @@ class Game {
             label.style.fontSize = Math.max(9, Math.min(12, desiredTileSize/7)) + 'px';
           }
         }
+        this.tilePositions[i] = { x, y, theta, cx, cy, radius: finalRadius, size: desiredTileSize };
       }
     };
 
@@ -282,39 +285,53 @@ class Game {
     return new Promise((resolve)=>{
       if(startIndex === endIndex){ resolve(); return; }
       const token = this.boardEl.querySelector(`.token.p${player.id}`) || null;
-      // if no token exists yet, place one without animation
       if(!token){ this.placeToken(player); resolve(); return; }
-      const startCell = this.boardEl.querySelector(`.cell[data-index="${startIndex}"]`);
-      const endCell = this.boardEl.querySelector(`.cell[data-index="${endIndex}"]`);
-      if(!startCell || !endCell){ resolve(); return; }
-      const rectBoard = this.boardEl.getBoundingClientRect();
-      const rectStart = startCell.getBoundingClientRect();
-      const rectEnd = endCell.getBoundingClientRect();
-      const startX = rectStart.left - rectBoard.left + (rectStart.width - token.offsetWidth)/2;
-      const startY = rectStart.top - rectBoard.top + (rectStart.height - token.offsetHeight)/2;
-      const endX = rectEnd.left - rectBoard.left + (rectEnd.width - token.offsetWidth)/2;
-      const endY = rectEnd.top - rectBoard.top + (rectEnd.height - token.offsetHeight)/2;
+      const positions = this.tilePositions;
+      const tileCount = this.boardSize;
+      if(!positions || positions.length !== tileCount){
+        // fallback to instant move if positions aren't ready
+        const endCell = this.boardEl.querySelector(`.cell[data-index="${endIndex}"]`);
+        if(endCell){ const rb = this.boardEl.getBoundingClientRect(); const re = endCell.getBoundingClientRect(); token.style.left = `${re.left - rb.left + (re.width - token.offsetWidth)/2}px`; token.style.top = `${re.top - rb.top + (re.height - token.offsetHeight)/2}px`; }
+        resolve(); return;
+      }
 
-      // ensure token is positioned absolutely within board
-      token.style.position = 'absolute';
+      const startPos = positions[startIndex];
+      const steps = (endIndex - startIndex + tileCount) % tileCount;
+      const anglePerStep = (2 * Math.PI) / tileCount;
+      const totalAngle = steps * anglePerStep;
+      const cx = startPos.cx;
+      const cy = startPos.cy;
+      const radius = startPos.radius;
+
+      // ensure token starts at the exact start coords
+      const startX = startPos.x + startPos.size/2 - (token.offsetWidth/2);
+      const startY = startPos.y + startPos.size/2 - (token.offsetHeight/2);
       token.style.left = `${startX}px`;
       token.style.top = `${startY}px`;
-      // apply transition for smooth travel
-      token.style.transition = 'left 650ms cubic-bezier(.2,.9,.2,1), top 650ms cubic-bezier(.2,.9,.2,1)';
-      // force style flush
-      // eslint-disable-next-line no-unused-expressions
-      token.offsetWidth;
-      token.style.left = `${endX}px`;
-      token.style.top = `${endY}px`;
-      const onEnd = (e)=>{
-        token.removeEventListener('transitionend', onEnd);
-        // clear inline transition so future moves can set it
-        token.style.transition = '';
-        resolve();
+      token.style.zIndex = 1000;
+
+      const durationPerStep = 180; // ms per tile
+      const duration = Math.max(300, Math.min(2200, durationPerStep * steps));
+      const startAngle = startPos.theta;
+      const startTime = performance.now();
+
+      const ease = (t)=> (--t)*t*t+1; // easeOutCubic
+
+      let rafId = null;
+      const stepFn = (now)=>{
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = ease(t);
+        const angle = startAngle + eased * totalAngle;
+        const x = cx + radius * Math.cos(angle) - token.offsetWidth/2;
+        const y = cy + radius * Math.sin(angle) - token.offsetHeight/2;
+        token.style.left = `${x}px`;
+        token.style.top = `${y}px`;
+        if(t<1){ rafId = requestAnimationFrame(stepFn); }
+        else { if(rafId) cancelAnimationFrame(rafId); token.style.zIndex = ''; resolve(); }
       };
-      token.addEventListener('transitionend', onEnd);
-      // safety fallback: resolve after duration
-      setTimeout(()=>{ try{ token.removeEventListener('transitionend', onEnd); }catch(e){} resolve(); }, 900);
+      rafId = requestAnimationFrame(stepFn);
+      // safety timeout
+      setTimeout(()=>{ if(rafId) cancelAnimationFrame(rafId); resolve(); }, duration + 200);
     });
   }
 
