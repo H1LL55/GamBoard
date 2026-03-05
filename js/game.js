@@ -1,7 +1,7 @@
 // Minimal GamBoard game engine — hotseat multiplayer, stored in localStorage
 class Game {
   constructor() {
-    this.boardSize = 20; // number of squares
+    this.boardSize = 40; // number of squares (full perimeter)
     this.players = [];
     this.current = 0;
     this.logEl = null;
@@ -74,24 +74,58 @@ class Game {
   }
 
   buildBoard(){
+    // build an 11x11 grid where the perimeter represents 40 squares
     this.boardEl.innerHTML = '';
-    for(let i=0;i<this.boardSize;i++){
-      const div = document.createElement('div');
-      div.className = 'cell';
-      div.dataset.index = i;
-      const label = document.createElement('div');
-      label.className = 'label';
-      label.textContent = this.squareLabel(i);
-      div.appendChild(label);
-      this.boardEl.appendChild(div);
+    const size = 11;
+    for(let r=0;r<size;r++){
+      for(let c=0;c<size;c++){
+        const div = document.createElement('div');
+        div.className = 'cell';
+        // perimeter cells only get an index
+        if(r===0 || r===size-1 || c===0 || c===size-1){
+          const pos = this.coordsToIndex(r,c,size);
+          div.classList.add('perimeter');
+          div.dataset.index = pos;
+          const label = document.createElement('div');
+          label.className = 'label';
+          label.textContent = this.squareLabel(pos);
+          div.appendChild(label);
+        } else {
+          div.classList.add('center');
+        }
+        this.boardEl.appendChild(div);
+      }
     }
+    // add a single large center panel that spans the interior
+    const center = document.createElement('div');
+    center.className = 'board-center';
+    center.innerHTML = `<div class="center-inner"><h2>GamBoard</h2><p>Roll dice, land on spaces, play mini-games.</p></div>`;
+    // position the center overlay using grid lines (2..11 exclusive)
+    center.style.gridColumn = '2 / 11';
+    center.style.gridRow = '2 / 11';
+    this.boardEl.appendChild(center);
     // place tokens for existing players
     this.players.forEach(p=>this.placeToken(p));
   }
 
+  // map grid coordinates (r,c) in an 11x11 grid to perimeter index 0..39
+  coordsToIndex(r,c,size){
+    const last = size-1;
+    if(r===last) return last - c; // bottom row: right->left -> 0..10
+    if(c===0) return 10 + (last - r); // left column: bottom-1 -> 11..19
+    if(r===0) return 20 + c; // top row: left->right -> 20..30
+    if(c===last) return 30 + r; // right column: top+1 -> 31..39
+    return -1;
+  }
+
   squareLabel(i){
-    // simple mapping of types
-    const names = ['Start','Property','Chance','Casino','Property','Tax','Property','BlackJack','Property','Jail','Property','Slots','Property','Chance','Property','Roulette','Property','Backarat','Property','GoToJail'];
+    // Monopoly-style labels (40 squares)
+    const names = [
+      'Go','Mediterranean Ave','Community Chest','Baltic Ave','Income Tax','Reading RR','Oriental Ave','Chance','Vermont Ave','Connecticut Ave',
+      'Jail/Just Visiting','St. Charles Place','Electric Company','States Ave','Virginia Ave','Pennsylvania RR','St. James Place','Community Chest','Tennessee Ave','New York Ave',
+      'Free Parking','Kentucky Ave','Chance','Indiana Ave','Illinois Ave','B. & O. RR','Atlantic Ave','Ventnor Ave','Water Works','Marvin Gardens',
+      'Go To Jail','Pacific Ave','North Carolina Ave','Community Chest','Pennsylvania Ave','Short Line','Chance','Park Place','Luxury Tax','Boardwalk'
+    ];
     return names[i] || `Square ${i}`;
   }
 
