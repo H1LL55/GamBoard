@@ -26,6 +26,7 @@
           <button id="rollBtn">Roll Dice</button>
           <button id="endTurnBtn">End Turn</button>
           <button id="addPlayerBtn">Add Player</button>
+          <button id="restartBtn">Restart Game</button>
         </div>
         <div class="dice" id="dice">—</div>
         <div class="log" id="log"></div>
@@ -79,6 +80,27 @@
       <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
         <button id="gameOverReset">Reset Game</button>
         <button id="gameOverClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Russian Roulette modal (1-in-6 chance wheel) -->
+  <div id="rrModal" class="modal" role="dialog" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-panel" role="document">
+      <h3 id="rrTitle">Russian Roulette</h3>
+      <p id="rrBody">You cannot afford the minimum bet. Spin the wheel — 1 in 6 chance to survive and get enough to play.</p>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0;position:relative">
+        <div class="rr-wheel-wrap">
+          <div id="rrWheelRing" class="rr-wheel-ring"></div>
+          <div class="rr-wheel-center">RR</div>
+        </div>
+        <div id="rrPointer" class="rr-pointer" aria-hidden="true"></div>
+      </div>
+      <div id="rrMsg" style="text-align:center;font-weight:700;margin-bottom:8px"></div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:8px">
+        <button id="rrSpin">Spin the Wheel</button>
+        <button id="rrClose">Cancel</button>
       </div>
     </div>
   </div>
