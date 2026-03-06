@@ -27,12 +27,21 @@ class Game {
     try{
       const params = new URLSearchParams(window.location.search);
       if(params.get('return')==='board' && params.get('player')){
+        const returnedPlayerId = params.get('player');
         const advance = params.get('advance');
         // clear querystring to avoid repeating this logic
         history.replaceState(null,'', window.location.pathname);
         this.log('Returned from mini-game.');
         // reload latest state (mini-game may have changed money)
         this.load();
+        // ensure current index points to the returning player so highlight is correct
+        try{
+          const idx = this.players.findIndex(p=>String(p.id) === String(returnedPlayerId));
+          if(idx !== -1){ this.current = idx; }
+          else { // if player was eliminated in the mini-game, ensure current is within bounds
+            if(this.current >= this.players.length) this.current = 0;
+          }
+        }catch(e){ if(this.current >= this.players.length) this.current = 0; }
         this.renderPlayers();
         // check for game over immediately after returning
         if(this.checkGameOver()) return;
@@ -127,12 +136,16 @@ class Game {
     this.addPlayerBtn = document.getElementById('addPlayerBtn');
     this.statusEl = document.getElementById('status');
     this.bankEl = document.getElementById('bank');
+    this.restartBtn = document.getElementById('restartBtn');
   }
 
   bind(){
     this.rollBtn.addEventListener('click', ()=>this.handleRoll());
     this.endTurnBtn.addEventListener('click', ()=>this.endTurn());
     this.addPlayerBtn.addEventListener('click', ()=>this.addPlayerPrompt());
+    if(this.restartBtn) this.restartBtn.addEventListener('click', ()=>{
+      if(confirm('Restart game? This will clear all progress stored in your browser.')) this.clear();
+    });
   }
 
   save(){
@@ -432,7 +445,12 @@ class Game {
   updateStatus(){
     if(this.gameOver){ this.statusEl.textContent = 'Game over.'; if(this.rollBtn) this.rollBtn.disabled = true; if(this.endTurnBtn) this.endTurnBtn.disabled = true; return; }
     if(this.players.length===0){ this.statusEl.textContent='No players yet.'; this.rollBtn.disabled=true; this.endTurnBtn.disabled=true; }
-    else{ this.statusEl.textContent = `Current: ${this.players[this.current].name}`; this.rollBtn.disabled=false; this.endTurnBtn.disabled=false; }
+    else{
+      if(this.current >= this.players.length) this.current = 0;
+      const cur = this.players[this.current];
+      this.statusEl.textContent = `Current: ${cur ? cur.name : '—'}`;
+      this.rollBtn.disabled=false; this.endTurnBtn.disabled=false;
+    }
     this.bankEl.textContent = `Bank: ${this.bank}$`;
   }
 
@@ -604,34 +622,21 @@ class Game {
         setTimeout(()=>{ window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&fromMini=' + encodeURIComponent(mini) + '&advance=1'; }, 200);
         return;
       } else {
-        this.log(`${player.name} cannot afford the minimum bet (${this.MIN_BET}$). Playing Russian Roulette...`);
-        const rr = Math.floor(Math.random()*6)+1; // 1..6
-        if(rr === 1){
-          // survived: give enough money for min bet and enter
-          player.money = this.MIN_BET;
-          this.log(`${player.name} survived Russian Roulette and now has ${player.money}$ to enter ${label}.`);
-          this.save();
-          this.renderPlayers();
-          setTimeout(()=>{ window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&fromMini=' + encodeURIComponent(mini) + '&advance=1'; }, 600);
-          return;
-        } else {
-          // lost: eliminate player
-          this.log(`${player.name} lost Russian Roulette and has been eliminated from the game.`);
-          const idx = this.players.findIndex(p=>p.id===player.id);
-          if(idx!==-1) this.players.splice(idx,1);
-          if(this.current >= this.players.length) this.current = 0;
-          this.save();
-          this.renderPlayers();
-          // if only one player remains, declare winner
-          if(this.players.length === 1){ this.showWinner(this.players[0]); }
-          return;
-        }
+        // open an interactive Russian Roulette modal with a 1-in-6 spin
+        this.openRussianRoulette(player, mini, label);
+        return;
       }
     }
     // save and render, then check for game over
     this.save();
     this.renderPlayers();
     if(this.checkGameOver()) return;
+    // automatically end the current player's turn after resolving non-redirect events
+    // give a short delay so the player can see the result before the turn advances
+    setTimeout(()=>{
+      // avoid ending turn if game is now over
+      if(!this.gameOver) this.endTurn();
+    }, 900);
   }
 
   showMiniGameConfirm(player, mini, label){
@@ -662,6 +667,111 @@ class Game {
     };
     confirm.addEventListener('click', onConfirm);
     cancel.addEventListener('click', onCancel);
+  }
+
+  // Open Russian Roulette modal — interactive 1-in-6 wheel spin
+  openRussianRoulette(player, mini, label){
+    this.log(`${player.name} cannot afford the minimum bet (${this.MIN_BET}$). Russian Roulette initiated.`);
+    const modal = document.getElementById('rrModal');
+    const wheelRing = document.getElementById('rrWheelRing');
+    const spinBtn = document.getElementById('rrSpin');
+    const closeBtn = document.getElementById('rrClose');
+    const msg = document.getElementById('rrMsg');
+    if(!modal || !wheelRing || !spinBtn || !closeBtn || !msg){
+      // fallback immediate behavior
+      const rr = Math.floor(Math.random()*6)+1;
+      if(rr===1){ player.money = this.MIN_BET; this.save(); this.renderPlayers(); setTimeout(()=>{ window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&fromMini=' + encodeURIComponent(mini) + '&advance=1'; }, 600); }
+      else { const idx = this.players.findIndex(p=>p.id===player.id); if(idx!==-1) this.players.splice(idx,1); if(this.current >= this.players.length) this.current = 0; this.save(); this.renderPlayers(); if(this.players.length===1) this.showWinner(this.players[0]); }
+      return;
+    }
+
+    // show modal and reset visuals
+    modal.setAttribute('aria-hidden','false');
+    msg.textContent = '';
+    spinBtn.disabled = false;
+
+    // helper: show confetti briefly
+    const showConfetti = ()=>{
+      try{
+        const conf = document.createElement('div'); conf.className = 'rr-confetti';
+        modal.appendChild(conf);
+        const emojis = ['🎉','✨','💥','🌟','🍀','🎊'];
+        for(let i=0;i<14;i++){
+          const s = document.createElement('span'); s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+          s.style.left = (30 + Math.random()*120) + 'px';
+          s.style.top = (60 + Math.random()*40) + 'px';
+          s.style.animationDelay = (Math.random()*200) + 'ms';
+          conf.appendChild(s);
+        }
+        // remove after animation
+        setTimeout(()=>{ conf.remove(); }, 1400);
+      }catch(e){/* ignore */}
+    };
+
+    let spinning = false;
+    const cleanup = ()=>{
+      spinBtn.removeEventListener('click', onSpin);
+      closeBtn.removeEventListener('click', onClose);
+      wheelRing.removeEventListener('transitionend', onTransitionEnd);
+      modal.setAttribute('aria-hidden','true');
+    };
+
+    const onClose = ()=>{ if(spinning) return; cleanup(); this.log(`${player.name} cancelled Russian Roulette.`); };
+
+    let chosenIndex = null;
+    let transitionTimeout = null;
+    const onTransitionEnd = (ev)=>{
+      // ensure we react once when the wheel finishes
+      if(ev && ev.target !== wheelRing) return;
+      // result handled in onSpin's timeout; nothing to do here but keep handler for robustness
+    };
+
+    const onSpin = ()=>{
+      if(spinning) return;
+      spinning = true;
+      spinBtn.disabled = true;
+      msg.textContent = 'Spinning...';
+
+      // pick random segment 0..5 (0 is survive as per CSS gradient first segment)
+      chosenIndex = Math.floor(Math.random()*6);
+      const spins = 3 + Math.floor(Math.random()*3); // 3..5
+      const segmentCenter = chosenIndex * 60 + 30; // degrees
+      const currentRot = parseFloat(wheelRing.dataset.rot || '0');
+      const targetRot = currentRot + (360 * spins) - segmentCenter;
+      const duration = 1400 + spins * 300; // ms
+      // apply transform
+      wheelRing.style.transition = `transform ${duration}ms cubic-bezier(.2,.7,.2,1)`;
+      wheelRing.style.transform = `rotate(${targetRot}deg)`;
+      wheelRing.dataset.rot = targetRot;
+
+      // safety timeout if transitionend doesn't fire reliably
+      if(transitionTimeout) clearTimeout(transitionTimeout);
+      transitionTimeout = setTimeout(()=>{
+        // outcome: survive if chosenIndex === 0
+        const outcome = chosenIndex + 1;
+        if(chosenIndex === 0){
+          msg.textContent = `Survived! You receive $${this.MIN_BET} and may enter ${label}.`;
+          showConfetti();
+          player.money = this.MIN_BET;
+          this.save();
+          this.renderPlayers();
+          setTimeout(()=>{ cleanup(); window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&fromMini=' + encodeURIComponent(mini) + '&advance=1'; }, 900);
+        } else {
+          msg.textContent = `You lost (rolled ${outcome}). You are eliminated.`;
+          const idx = this.players.findIndex(p=>p.id===player.id);
+          if(idx!==-1) this.players.splice(idx,1);
+          if(this.current >= this.players.length) this.current = 0;
+          this.save();
+          this.renderPlayers();
+          setTimeout(()=>{ cleanup(); if(this.players.length===1) this.showWinner(this.players[0]); }, 900);
+        }
+        spinning = false;
+      }, duration + 80);
+    };
+
+    spinBtn.addEventListener('click', onSpin);
+    closeBtn.addEventListener('click', onClose);
+    wheelRing.addEventListener('transitionend', onTransitionEnd);
   }
 
   // return mini-game page for a given perimeter index (or null)
