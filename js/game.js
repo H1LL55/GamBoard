@@ -45,6 +45,8 @@ class Game {
     this.log('Game ready. Add players to start.');
   }
 
+  // ...background upload UI removed per user request...
+
   // initialize the compact slot machine in the sidebar
   initSidebarSlots(){
     try{
