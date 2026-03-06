@@ -128,7 +128,7 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 .board-center .center-inner{max-width:340px;transition:transform 360ms cubic-bezier(.2,.8,.2,1);}
 .board-center .center-inner.pulse{transform:scale(1.04)}
 .board-center h2{margin:0 0 8px 0;font-size:22px;letter-spacing:0.6px}
-.board-center p{margin:0;color:var(--muted)}
+.board-center p{margin:0;color:var(--muted)}`
 
 .token{width:32px;height:32px;border-radius:999px;box-shadow:0 10px 26px rgba(2,6,23,0.6);transition:transform 220ms ease, opacity 260ms ease}
 .token .token-inner{box-shadow:inset 0 -6px 12px rgba(0,0,0,0.28);border:2px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
