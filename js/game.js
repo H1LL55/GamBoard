@@ -354,14 +354,22 @@ class Game {
     const left = rectCell.left - rectBoard.left + (rectCell.width - 18)/2;
     const top = rectCell.top - rectBoard.top + (rectCell.height - 18)/2;
     t.style.position = 'absolute';
-    t.style.left = `${left}px`;
-    t.style.top = `${top}px`;
-    t.style.width = '18px';
-    t.style.height = '18px';
+  t.style.left = `${left}px`;
+  t.style.top = `${top}px`;
+  t.style.width = '32px';
+  t.style.height = '32px';
     // inner element holds color and rotation
     const inner = document.createElement('div');
     inner.className = 'token-inner';
-    inner.style.transform = 'rotate(0deg)';
+  inner.style.transform = 'rotate(0deg)';
+  // initials inside the token for quick identification
+  const nameParts = (player.name || '').trim().split(/\s+/).filter(Boolean);
+  let initials = '';
+  if(nameParts.length === 0) initials = 'P' + player.id;
+  else if(nameParts.length === 1) initials = nameParts[0].slice(0,2).toUpperCase();
+  else initials = (nameParts[0][0] + (nameParts[1][0]||'')).toUpperCase();
+  inner.textContent = initials;
+  inner.style.fontSize = '12px';
     t.appendChild(inner);
     this.boardEl.appendChild(t);
     // animate token appearing
@@ -406,10 +414,25 @@ class Game {
     const player = this.players[this.current];
     if(!player) return;
     if(player.inJail){ this.log(`${player.name} is in jail and skips roll.`); this.endTurn(); return; }
-    const n = this.rollDice();
-    this.diceEl.textContent = n;
-    this.log(`${player.name} rolled a ${n}`);
-    this.movePlayer(player,n);
+    // animate dice roll visually, then move
+    if(!this.diceEl) { const n = this.rollDice(); this.log(`${player.name} rolled a ${n}`); this.movePlayer(player,n); return; }
+    this.rollBtn.disabled = true;
+    const rollDuration = 900; // ms
+    this.diceEl.classList.add('rolling');
+    let iv = null;
+    iv = setInterval(()=>{ this.diceEl.textContent = Math.floor(Math.random()*6)+1; }, 80);
+    setTimeout(()=>{
+      clearInterval(iv);
+      this.diceEl.classList.remove('rolling');
+      const n = this.rollDice();
+      this.diceEl.textContent = n;
+      this.log(`${player.name} rolled a ${n}`);
+      // small delay so players see the final dice value
+      setTimeout(()=>{
+        this.movePlayer(player,n);
+        this.rollBtn.disabled = false;
+      }, 220);
+    }, rollDuration);
   }
 
   rollDice(){ return Math.floor(Math.random()*6)+1; }
@@ -457,11 +480,13 @@ class Game {
       const cy = startPos.cy;
       const radius = startPos.radius;
 
-      // ensure token starts at the exact start coords
+  // ensure token starts at the exact start coords
       const startX = startPos.x + startPos.size/2 - (token.offsetWidth/2);
       const startY = startPos.y + startPos.size/2 - (token.offsetHeight/2);
       token.style.left = `${startX}px`;
       token.style.top = `${startY}px`;
+  // mark token as moving for visual emphasis
+  token.classList.add('moving');
       token.style.zIndex = 1000;
 
       const durationPerStep = 180; // ms per tile
@@ -472,6 +497,21 @@ class Game {
       const ease = (t)=> (--t)*t*t+1; // easeOutCubic
 
       let rafId = null;
+      const highlightTimeouts = [];
+      // schedule tile pass highlights so players can see the path
+      const stepsIndices = [];
+      for(let k=1;k<=steps;k++) stepsIndices.push((startIndex + k) % tileCount);
+      const stepTime = duration / Math.max(1, steps);
+      stepsIndices.forEach((idx,i)=>{
+        const to = setTimeout(()=>{
+          const cell = this.boardEl.querySelector(`.cell[data-index="${idx}"]`);
+          if(cell){ cell.classList.add('passed'); }
+          // remove after a short while so trail fades
+          const rem = setTimeout(()=>{ if(cell) cell.classList.remove('passed'); }, Math.min(700, stepTime*1.1));
+          highlightTimeouts.push(rem);
+        }, Math.max(0, i * stepTime));
+        highlightTimeouts.push(to);
+      });
       const stepFn = (now)=>{
         const t = Math.min(1, (now - startTime) / duration);
         const eased = ease(t);
@@ -492,6 +532,13 @@ class Game {
           // arrival: small bob to celebrate landing
           token.classList.add('bob');
           setTimeout(()=> token.classList.remove('bob'), 700);
+          // remove moving state
+          token.classList.remove('moving');
+          // highlight final tile briefly
+          const endCell = this.boardEl.querySelector(`.cell[data-index="${endIndex}"]`);
+          if(endCell){ endCell.classList.add('target'); setTimeout(()=> endCell.classList.remove('target'), 900); }
+          // clear any pending highlight timeouts
+          highlightTimeouts.forEach(id=>clearTimeout(id));
           if(timeoutId) clearTimeout(timeoutId);
           resolve();
         }
@@ -503,6 +550,8 @@ class Game {
         token.style.zIndex = '';
         token.classList.add('bob');
         setTimeout(()=> token.classList.remove('bob'), 700);
+        token.classList.remove('moving');
+        highlightTimeouts.forEach(id=>clearTimeout(id));
         resolve();
       }, duration + 300);
     });

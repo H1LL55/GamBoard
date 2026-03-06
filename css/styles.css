@@ -22,18 +22,21 @@ header h1{margin:0;font-size:20px}
 button{background:var(--accent);border:none;padding:8px 12px;border-radius:6px;color:#000;font-weight:600;cursor:pointer}
 button:disabled{opacity:0.5;cursor:not-allowed}
 .dice{font-size:28px;font-weight:700;margin-top:8px}
+.dice{width:72px;height:72px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff,#f2f2f2);color:#111;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.6);font-size:26px;font-weight:800}
+.dice.rolling{animation:diceShake 700ms cubic-bezier(.2,.8,.2,1)}
+@keyframes diceShake{0%{transform:rotate(0) translateX(0)}25%{transform:rotate(6deg) translateX(-4px)}50%{transform:rotate(-6deg) translateX(4px)}75%{transform:rotate(4deg) translateX(-2px)}100%{transform:rotate(0) translateX(0)}}
 .log{margin-top:10px;background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;max-height:120px;overflow:auto}
 .sidebar{width:220px}
 footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,255,0.03)}
 
-.token{position:absolute;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;box-shadow:0 1px 0 rgba(0,0,0,0.6)}
+.token{position:absolute;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.5)}
 
-.token .token-inner{width:100%;height:100%;border-radius:50%;display:block;transform-origin:center center;transition:transform 220ms ease}
+.token .token-inner{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;transform-origin:center center;transition:transform 220ms ease;font-weight:700;color:#fff}
 
 .token.p0 .token-inner{background:#ff7b7b}
 .token.p1 .token-inner{background:#7bc8ff}
-.token.p2 .token-inner{background:#ffdf7b}
-.token.p3 .token-inner{background:#b7ff9b}
+.token.p2 .token-inner{background:#ffdf7b;color:#111}
+.token.p3 .token-inner{background:#b7ff9b;color:#111}
 
 @media (max-width:900px){.container{flex-direction:column}.sidebar{width:100%}}
 
@@ -100,12 +103,18 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 .board-center h2{margin:0 0 8px 0;font-size:22px;letter-spacing:0.6px}
 .board-center p{margin:0;color:var(--muted)}
 
-/* token polish */
-.token{width:22px;height:22px;border-radius:999px;box-shadow:0 6px 14px rgba(2,6,23,0.6);transition:transform 220ms ease, opacity 260ms ease}
-.token .token-inner{box-shadow:inset 0 -4px 8px rgba(0,0,0,0.25);border:2px solid rgba(255,255,255,0.06)}
-.token.appear{transform:scale(1.12)}
+.token{width:32px;height:32px;border-radius:999px;box-shadow:0 10px 26px rgba(2,6,23,0.6);transition:transform 220ms ease, opacity 260ms ease}
+.token .token-inner{box-shadow:inset 0 -6px 12px rgba(0,0,0,0.28);border:2px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+.token.appear{transform:scale(1.08)}
 .player.active{outline:2px solid var(--accent);background:linear-gradient(90deg,rgba(255,204,51,0.12),transparent);transition:box-shadow 240ms ease, transform 220ms ease}
 .player.active .muted{color:var(--accent)}
+
+/* token moving state */
+.token.moving{transform:translateY(-8px) scale(1.12);box-shadow:0 18px 36px rgba(255,204,51,0.18),0 0 22px rgba(255,204,51,0.10)}
+
+/* tile pass highlight */
+.cell.passed{box-shadow:0 12px 30px rgba(255,204,51,0.12), inset 0 -6px 14px rgba(255,204,51,0.03);transform:translateY(-6px) scale(1.02)}
+.cell.target{outline:2px solid rgba(255,255,255,0.06);box-shadow:0 18px 40px rgba(255,204,51,0.12)}
 
 /* small responsive tweaks for tile labels to remain legible */
 @media (max-width:900px){
