@@ -40,7 +40,7 @@ footer{padding:12px 20px;color:var(--muted);border-top:1px solid rgba(255,255,25
 
 @media (max-width:900px){.container{flex-direction:column}.sidebar{width:100%}}
 
-  .board{min-height:760px;border:6px solid rgba(0,0,0,0.3);box-shadow:0 8px 30px rgba(2,6,23,0.6);padding:14px;background-image:url('../assets/images/board-bg.png');background-position:center;background-size: 115%}
+  .board{min-height:760px;border:6px solid rgba(0,0,0,0.3);box-shadow:0 8px 30px rgba(2,6,23,0.6);padding:14px;background-image:url('../assets/images/board-bg.png');background-position:center;background-size: 110%}
 .cell{width:64px;height:64px;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:transform 240ms ease, box-shadow 240ms ease;border:1px solid rgba(0,0,0,0.25)}
 .cell:hover{transform:translateY(-6px);box-shadow:0 8px 16px rgba(0,0,0,0.45)}
 .cell .label{font-size:12px;color:var(--muted);text-align:center;padding:2px}
