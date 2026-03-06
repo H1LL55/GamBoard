@@ -137,12 +137,20 @@
 			}
 
 		function renderUI(){
-			betInput.max = curPlayer.money;
+			const MIN_BET = 10;
+			const max = curPlayer.money <= 100 ? curPlayer.money : Math.floor(curPlayer.money/2);
+			betInput.min = MIN_BET;
+			betInput.max = max;
+			betInput.value = Math.min(Number(betInput.value||MIN_BET), max);
 		}
 
 		dealBtn.addEventListener('click', ()=>{
 			const bet = Math.max(1, Math.floor(Number(betInput.value)||1));
-			if(bet>curPlayer.money){ alert('Bet exceeds money'); return; }
+			const MIN_BET = 10;
+			const max = curPlayer.money <= 100 ? curPlayer.money : Math.floor(curPlayer.money/2);
+			if(curPlayer.money < MIN_BET && curPlayer.money > 100){ alert('You cannot afford the minimum bet.'); return; }
+			if(bet < MIN_BET && curPlayer.money > 100){ alert(`Minimum bet is ${MIN_BET}`); return; }
+			if(bet > max){ alert(`Maximum allowed bet is ${max}`); return; }
 			deck = buildDeck(); playerHand=[]; dealerHand=[]; resultEl.textContent='';
 			playerHand.push(deck.pop(), deck.pop()); dealerHand.push(deck.pop(), deck.pop());
 			hitBtn.disabled=false; standBtn.disabled=false; dealBtn.disabled=true; betInput.disabled=true;

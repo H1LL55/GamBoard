@@ -5,6 +5,7 @@ class Game {
     this.players = [];
     this.current = 0;
     this.gameOver = false;
+    this.MIN_BET = 10; // default minimum bet for mini-games
     this.logEl = null;
     this.diceEl = null;
     this.rollBtn = null;
@@ -192,6 +193,29 @@ class Game {
     if(modal && title && body && reset && close){
       title.textContent = 'Game Over';
       body.textContent = `${player.name} has lost all their money and is eliminated.`;
+      modal.setAttribute('aria-hidden','false');
+      const onReset = ()=>{ reset.removeEventListener('click', onReset); close.removeEventListener('click', onClose); modal.setAttribute('aria-hidden','true'); this.clear(); };
+      const onClose = ()=>{ reset.removeEventListener('click', onReset); close.removeEventListener('click', onClose); modal.setAttribute('aria-hidden','true'); };
+      reset.addEventListener('click', onReset);
+      close.addEventListener('click', onClose);
+    }
+  }
+
+  showWinner(player){
+    this.gameOver = true;
+    this.log(`GAME FINISHED: ${player.name} is the last player standing and wins!`);
+    // disable controls
+    if(this.rollBtn) this.rollBtn.disabled = true;
+    if(this.endTurnBtn) this.endTurnBtn.disabled = true;
+    // show a simple modal using existing gameOverModal UI
+    const modal = document.getElementById('gameOverModal');
+    const title = document.getElementById('gameOverTitle');
+    const body = document.getElementById('gameOverBody');
+    const reset = document.getElementById('gameOverReset');
+    const close = document.getElementById('gameOverClose');
+    if(modal && title && body && reset && close){
+      title.textContent = 'Winner!';
+      body.textContent = `${player.name} is the last player standing and wins the game.`;
       modal.setAttribute('aria-hidden','false');
       const onReset = ()=>{ reset.removeEventListener('click', onReset); close.removeEventListener('click', onClose); modal.setAttribute('aria-hidden','true'); this.clear(); };
       const onClose = ()=>{ reset.removeEventListener('click', onReset); close.removeEventListener('click', onClose); modal.setAttribute('aria-hidden','true'); };
@@ -571,9 +595,38 @@ class Game {
     // mini-game redirects (open relevant mini-game page and pass player id)
     const mini = this.getMiniGameForIndex(s);
     if(mini){
-      // show confirmation modal to the user before redirecting
-      this.showMiniGameConfirm(player, mini, label);
-      return; // wait until user confirms/cancels
+      // Forced entry: players must enter the mini-game. If they can't afford the minimum bet,
+      // they play Russian Roulette (1 in 6 chance to survive and receive enough money to meet the min bet,
+      // otherwise they are eliminated).
+      if(player.money >= (this.MIN_BET || 10)){
+        this.save();
+        // auto-redirect into mini-game
+        setTimeout(()=>{ window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&fromMini=' + encodeURIComponent(mini) + '&advance=1'; }, 200);
+        return;
+      } else {
+        this.log(`${player.name} cannot afford the minimum bet (${this.MIN_BET}$). Playing Russian Roulette...`);
+        const rr = Math.floor(Math.random()*6)+1; // 1..6
+        if(rr === 1){
+          // survived: give enough money for min bet and enter
+          player.money = this.MIN_BET;
+          this.log(`${player.name} survived Russian Roulette and now has ${player.money}$ to enter ${label}.`);
+          this.save();
+          this.renderPlayers();
+          setTimeout(()=>{ window.location.href = mini + '?player=' + encodeURIComponent(player.id) + '&return=board&fromMini=' + encodeURIComponent(mini) + '&advance=1'; }, 600);
+          return;
+        } else {
+          // lost: eliminate player
+          this.log(`${player.name} lost Russian Roulette and has been eliminated from the game.`);
+          const idx = this.players.findIndex(p=>p.id===player.id);
+          if(idx!==-1) this.players.splice(idx,1);
+          if(this.current >= this.players.length) this.current = 0;
+          this.save();
+          this.renderPlayers();
+          // if only one player remains, declare winner
+          if(this.players.length === 1){ this.showWinner(this.players[0]); }
+          return;
+        }
+      }
     }
     // save and render, then check for game over
     this.save();

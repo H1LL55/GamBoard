@@ -51,11 +51,27 @@
 				let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>';
 				playerSelectEl.innerHTML = html;
 				const chooseBtn = document.getElementById('chooseBtn');
-				chooseBtn.addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } slotArea.style.display='block'; playerSelectEl.style.display='none'; });
+				chooseBtn.addEventListener('click', ()=>{
+					const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; }
+					slotArea.style.display='block'; playerSelectEl.style.display='none';
+					// apply bet limits for this player
+					const MIN_BET = 10;
+					const max = curPlayer.money <= 100 ? curPlayer.money : Math.floor(curPlayer.money/2);
+					betInput.min = MIN_BET;
+					betInput.max = max;
+					betInput.value = Math.min(Number(betInput.value||MIN_BET), max);
+				});
 				if(playerParam){ const selEl = document.getElementById('playerSel'); if(selEl.querySelector(`option[value="${playerParam}"]`)){ selEl.value = playerParam; chooseBtn.click(); } }
 			}
 
-		function spin(){ const bet = Math.max(1, Math.floor(Number(betInput.value)||1)); if(bet>curPlayer.money){ alert('Bet exceeds money'); return; }
+		function spin(){
+			const bet = Math.max(1, Math.floor(Number(betInput.value)||1));
+			const MIN_BET = 10;
+			const max = curPlayer.money <= 100 ? curPlayer.money : Math.floor(curPlayer.money/2);
+			// cannot play if they don't meet minimum (unless they have <=100, then they may bet whole)
+			if(curPlayer.money < MIN_BET && curPlayer.money > 100){ alert('You cannot afford the minimum bet.'); return; }
+			if(bet < MIN_BET && curPlayer.money > 100){ alert(`Minimum bet is ${MIN_BET}`); return; }
+			if(bet > max){ alert(`Maximum allowed bet is ${max}`); return; }
 			payoutEl.textContent='Spinning...'; spinBtn.disabled=true; const res = [];
 			// simple random reels
 			for(let i=0;i<3;i++){ res[i]=symbols[Math.floor(Math.random()*symbols.length)]; reels[i].textContent=''; }

@@ -44,6 +44,7 @@
 	const wheel = document.getElementById('wheel');
 	const wheelInner = document.getElementById('wheelInner');
 		const resultEl = document.getElementById('result');
+		const MIN_BET = 10;
 
 		function readState(){ const raw=localStorage.getItem('gamboard_state'); return raw?JSON.parse(raw):{players:[],current:0,bank:0}; }
 		function saveState(s){ localStorage.setItem('gamboard_state', JSON.stringify(s)); }
@@ -57,11 +58,27 @@
 				let html = '<label>Choose player: <select id="playerSel">'; for(const p of state.players) html += `<option value="${p.id}">${p.name} ($${p.money})</option>`; html += '</select></label> <button id="chooseBtn">Play</button>';
 				playerSelectEl.innerHTML = html;
 				const chooseBtn = document.getElementById('chooseBtn');
-				chooseBtn.addEventListener('click', ()=>{ const sel = document.getElementById('playerSel').value; curPlayer = state.players.find(x=>x.id==sel); if(!curPlayer){ alert('Invalid player'); return; } rouletteArea.style.display='block'; playerSelectEl.style.display='none'; });
+				chooseBtn.addEventListener('click', ()=>{
+					const sel = document.getElementById('playerSel').value;
+					curPlayer = state.players.find(x=>x.id==sel);
+					if(!curPlayer){ alert('Invalid player'); return; }
+					// set bet bounds per rules: min = MIN_BET, max = half money (or full money if <=100)
+					const max = curPlayer.money <= 100 ? curPlayer.money : Math.floor(curPlayer.money/2);
+					betInput.min = MIN_BET;
+					betInput.max = max;
+					betInput.value = Math.min(max, Math.max(MIN_BET, Number(betInput.value) || MIN_BET));
+					rouletteArea.style.display='block'; playerSelectEl.style.display='none';
+				});
 				if(playerParam){ const selEl = document.getElementById('playerSel'); if(selEl.querySelector(`option[value="${playerParam}"]`)){ selEl.value = playerParam; chooseBtn.click(); } }
 			}
 
-		function spin(){ const bet = Math.max(1, Math.floor(Number(betInput.value)||1)); if(bet>curPlayer.money){ alert('Bet exceeds money'); return; }
+		function spin(){
+			// enforce bet rules
+			const bet = Math.floor(Number(betInput.value) || MIN_BET);
+			const max = curPlayer.money <= 100 ? curPlayer.money : Math.floor(curPlayer.money/2);
+			if(bet < MIN_BET){ alert(`Minimum bet is $${MIN_BET}`); return; }
+			if(bet > max){ alert(`Maximum bet for this player is $${max}`); return; }
+			if(bet > curPlayer.money){ alert('Bet exceeds money'); return; }
 			const type = betType.value; const val = betVal.value.trim().toLowerCase(); resultEl.textContent='';
 			// simulate spin
 			wheelInner.textContent='Spinning…'; wheelInner.classList.add('spin'); spinBtn.disabled=true;
