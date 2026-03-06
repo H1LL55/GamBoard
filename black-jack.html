@@ -66,6 +66,8 @@
 		let curPlayer = null;
 		let deck = [];
 		let playerHand = [], dealerHand = [];
+		let dealerHidden = true; // hide dealer's second card until reveal
+		let dealing = false;
 
 		function buildDeck(){
 			const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -90,25 +92,23 @@
 		}
 
 			function renderHands(){
-				// render player cards with animated spans
 				playerCardsEl.innerHTML = '';
 				dealerCardsEl.innerHTML = '';
 				playerHand.forEach((c,i)=>{
 					const s = document.createElement('span'); s.className='card'; s.textContent = c.r + c.s;
 					playerCardsEl.appendChild(s);
-					// staggered deal animation
 					setTimeout(()=> s.classList.add('dealt'), 80 * i);
 				});
 				dealerHand.forEach((c,i)=>{
-					const s = document.createElement('span'); s.className='card';
-					// hide dealer second card until stand
-					if(i===0 && !standBtn.disabled){ s.textContent = c.r + '?'; }
-					else { s.textContent = c.r + c.s; }
+					const s = document.createElement('span');
+					// show first dealer card face-up, second face-down while hidden
+					if(dealerHidden && i===1){ s.className='card back'; }
+					else { s.className='card'; s.textContent = c.r + c.s; }
 					dealerCardsEl.appendChild(s);
 					setTimeout(()=> s.classList.add('dealt'), 100 * i);
 				});
 				playerTotalEl.textContent = `Total: ${valueOf(playerHand)}`;
-				dealerTotalEl.textContent = standBtn.disabled ? `Total: ${valueOf(dealerHand)}` : `Total: ?`;
+				dealerTotalEl.textContent = dealerHidden ? `Total: ?` : `Total: ${valueOf(dealerHand)}`;
 			}
 
 			function listPlayers(){
@@ -145,30 +145,57 @@
 		}
 
 		dealBtn.addEventListener('click', ()=>{
+			if(dealing) return;
 			const bet = Math.max(1, Math.floor(Number(betInput.value)||1));
 			const MIN_BET = 10;
 			const max = curPlayer.money <= 100 ? curPlayer.money : Math.floor(curPlayer.money/2);
 			if(curPlayer.money < MIN_BET && curPlayer.money > 100){ alert('You cannot afford the minimum bet.'); return; }
 			if(bet < MIN_BET && curPlayer.money > 100){ alert(`Minimum bet is ${MIN_BET}`); return; }
 			if(bet > max){ alert(`Maximum allowed bet is ${max}`); return; }
-			deck = buildDeck(); playerHand=[]; dealerHand=[]; resultEl.textContent='';
-			playerHand.push(deck.pop(), deck.pop()); dealerHand.push(deck.pop(), deck.pop());
-			hitBtn.disabled=false; standBtn.disabled=false; dealBtn.disabled=true; betInput.disabled=true;
-			renderHands();
-			// immediate blackjack check
-			const pv = valueOf(playerHand); const dv = valueOf(dealerHand);
-			if(pv===21){ settle(bet, 'blackjack'); }
+			// start dealing animation sequence: P1, D1, P2, D2(face-down)
+			dealing = true; dealerHidden = true; resultEl.textContent=''; deck = buildDeck(); playerHand=[]; dealerHand=[];
+			// disable inputs during deal
+			dealBtn.disabled = true; hitBtn.disabled = true; standBtn.disabled = true; betInput.disabled = true;
+			// sequence timings
+			setTimeout(()=>{ playerHand.push(deck.pop()); renderHands(); }, 120);
+			setTimeout(()=>{ dealerHand.push(deck.pop()); renderHands(); }, 520);
+			setTimeout(()=>{ playerHand.push(deck.pop()); renderHands(); }, 920);
+			setTimeout(()=>{
+				dealerHand.push(deck.pop());
+				dealerHidden = true; // second card hidden
+				renderHands();
+				// enable player actions
+				hitBtn.disabled = false; standBtn.disabled = false; dealing = false;
+				// immediate blackjack checks
+				const pv = valueOf(playerHand); const dv = valueOf(dealerHand);
+				if(pv===21){
+					// reveal dealer then settle after short delay
+					dealerHidden = false; renderHands();
+					setTimeout(()=> settle(bet, dv===21 ? 'push' : 'blackjack'), 700);
+				}
+			}, 1400);
 		});
 
 		hitBtn.addEventListener('click', ()=>{
+			if(dealing) return;
 			playerHand.push(deck.pop()); renderHands();
-			const pv = valueOf(playerHand); if(pv>21){ settle(Number(betInput.value), 'bust'); }
+			const pv = valueOf(playerHand);
+			if(pv>21){
+				// reveal dealer for clarity
+				dealerHidden = false; renderHands();
+				settle(Number(betInput.value), 'bust');
+			}
 		});
 
-		standBtn.addEventListener('click', ()=>{
-			// dealer draws until 17
-			while(valueOf(dealerHand)<17) dealerHand.push(deck.pop());
-			renderHands();
+		standBtn.addEventListener('click', async ()=>{
+			if(dealing) return;
+			// reveal dealer's hole card and animate draws
+			dealerHidden = false; renderHands();
+			// dealer draws until 17 with animation
+			while(valueOf(dealerHand) < 17){
+				await new Promise(r=> setTimeout(r, 700));
+				dealerHand.push(deck.pop()); renderHands();
+			}
 			const bet = Number(betInput.value);
 			const pv = valueOf(playerHand); const dv = valueOf(dealerHand);
 			if(dv>21 || pv>dv) settle(bet,'win');
