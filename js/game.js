@@ -173,7 +173,7 @@ class Game {
   addPlayerPrompt(){
     if(this.players.length >= 4){ alert('Max 4 players'); return; }
     const name = prompt('Player name (leave empty for Player ' + (this.players.length+1) + ')') || ('Player '+(this.players.length+1));
-    this.players.push({name, money:1500, pos:0, inJail:false, id:this.players.length});
+    this.players.push({name, money:500, pos:0, inJail:false, id:this.players.length});
     this.save();
     this.renderPlayers();
     this.log(`${name} joined the game.`);
