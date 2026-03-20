@@ -1,7 +1,7 @@
 // Minimal GamBoard game engine — hotseat multiplayer, stored in localStorage
 class Game {
     constructor() {
-        this.boardSize = 40; // number of squares (full perimeter)
+        this.boardSize = 16; // number of squares (full perimeter)
         this.players = [];
         this.current = 0;
         this.gameOver = false;
@@ -397,10 +397,10 @@ class Game {
     squareLabel(i) {
         // Monopoly-style labels (40 squares)
         const names = [
-            'Welcome to the Strip', 'Fremont Street', 'Lucky Chance', 'Slot Alley', 'Neon Bazaar', 'Bellagio Fountain', 'Blackjack Table', 'Royal Arcade', 'Viva Vegas', 'Slot Palace',
-            'The Mirage', 'Roulette Row', 'Sands Hotel', 'High Roller Ave', 'Baccarat Lounge', 'MGM Grand', 'Blackjack Lounge', 'Lucky Chance', 'Resort Drive', 'Roulette Court',
-            'Poolside Park', 'Caesars Palace', 'Poker Promenade', 'The Venetian', 'Blackjack Den', 'Downtown Casino', 'Mega Slots', 'Circus Corner', 'Showroom Blvd', 'Neon Works',
-            'Outlet Row', 'Slot Junction', 'Desert Road', 'Lucky Chance', 'Penthouse Ave', 'The Strip North', 'Roulette Terrace', 'Luxury Tax', 'Baccarat Suites', 'Boardwalk Casino'
+            'Welcome to the Strip', 'Lucky Chance', 'Slot Alley','Blackjack Table', 'Viva Vegas', 'Slot Palace',
+            'Roulette Row',  'Baccarat Lounge',  'Blackjack Lounge', 'Lucky Chance', 'Roulette Court',
+            'Poker Promenade', 'Blackjack Den', 'Mega Slots',
+            'Slot Junction', 'Lucky Chance'
         ];
         return names[i] || `Square ${i}`;
     }
