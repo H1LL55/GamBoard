@@ -40,9 +40,7 @@ class PermitApplicationForm(tk.Tk):
         self.build_form_area()
         self.clear_form()
 
-    # ------------------------------
     # Main layout
-    # ------------------------------
     def build_header(self):
         header = ttk.Frame(self, padding=(16, 12))
         header.grid(row=0, column=0, sticky="ew")
@@ -84,9 +82,7 @@ class PermitApplicationForm(tk.Tk):
 
         self.build_form_fields()
 
-    # ------------------------------
     # Form fields and variables
-    # ------------------------------
     def build_form_fields(self):
         self.form_vars = {
             "applicant_type": tk.StringVar(value="Staff"),
