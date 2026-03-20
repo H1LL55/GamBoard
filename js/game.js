@@ -319,12 +319,12 @@ class Game {
             // desired tile size should not exceed available arc length (with some padding)
             const desiredTileSize = Math.min(cssTileSize, arc * 0.85);
             // final radius adjusted so tiles sit nicely (ensure positive)
-            const finalRadius = Math.max((Math.min(cx, cy) - desiredTileSize / 2 - 18), 40);
+            const finalRadius = Math.max((Math.min(cx, cy) - desiredTileSize / 2), 350);
 
             // store computed positions for use during animations
             this.tilePositions = [];
             for (let i = 0; i < tileCount; i++) {
-                const theta = (i / tileCount) * Math.PI * 2 - Math.PI / 2; // start at top
+                const theta = (i / tileCount) * Math.PI * 2 - Math.PI / 2 + (12 * Math.PI / 180); // start at top, rotated by 5 degrees
                 const x = cx + finalRadius * Math.cos(theta) - desiredTileSize / 2;
                 const y = cy + finalRadius * Math.sin(theta) - desiredTileSize / 2;
                 const el = this.boardEl.querySelector(`.cell[data-index="${i}"]`);
