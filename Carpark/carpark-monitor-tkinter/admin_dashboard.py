@@ -129,7 +129,7 @@ class CarParkAdminDashboard(tk.Tk):
         lower.grid(row=1, column=0, sticky="nsew")
 
         carparks_frame = ttk.LabelFrame(lower, text="Car park overview", padding=8)
-        notes_frame = ttk.LabelFrame(lower, text="How this split version works", padding=10)
+        notes_frame = ttk.LabelFrame(lower, text=" ", padding=10)
         lower.add(carparks_frame, weight=3)
         lower.add(notes_frame, weight=2)
 
@@ -150,10 +150,10 @@ class CarParkAdminDashboard(tk.Tk):
 
         notes_text = (
             "• Applicants now submit new permit requests through the separate application form file.\n\n"
-            "• This dashboard is now the staff/admin side only.\n\n"
+            "• This dashboard is staff/admin side only.\n\n"
             "• Permit applications saved in the other file appear here because both files use the same SQLite database.\n\n"
             "• The dashboard auto-refreshes so review staff can see new applications coming in without reopening the whole system.\n\n"
-            "• Visitors, reservations, temporary permits, patrol checks and penalty notices still work here exactly like before."
+            "• Visitors, reservations, temporary permits, patrol checks and penalty notices need to be accepted here."
         )
         ttk.Label(notes_frame, text=notes_text, justify="left", wraplength=430).pack(fill="both", expand=True)
 

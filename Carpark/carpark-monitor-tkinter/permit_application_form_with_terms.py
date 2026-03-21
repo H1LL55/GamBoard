@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from pathlib import Path
 
 from shared_db import (
     DB_PATH,
@@ -26,6 +27,7 @@ class PermitApplicationForm(tk.Tk):
 
         self.db = DatabaseManager(DB_PATH)
         self.car_park_choices = self.db.car_park_options()
+        self.terms_file = Path(__file__).with_name("permit_terms.txt")
 
         self.style = ttk.Style(self)
         try:
@@ -117,6 +119,7 @@ class PermitApplicationForm(tk.Tk):
         self.essential_business_var = tk.BooleanVar(value=False)
         self.business_insurance_var = tk.BooleanVar(value=False)
         self.friday_only_var = tk.BooleanVar(value=False)
+        self.accept_terms_var = tk.BooleanVar(value=False)
 
         row = 0
 
@@ -153,7 +156,7 @@ class PermitApplicationForm(tk.Tk):
         self.build_form_field(vehicle_frame, "Valid to", r, variable=self.form_vars["valid_to"]); r += 1
         self.build_form_field(vehicle_frame, "Business travel trips / week", r, variable=self.form_vars["business_travel_trips"]); r += 1
         self.build_form_field(vehicle_frame, "Expected campus days", r, variable=self.form_vars["planned_days"]); r += 1
-        self.build_form_field(vehicle_frame, "Evidence / notes summary", r, variable=self.form_vars["evidence_summary"]); r += 1
+        self.build_form_field(vehicle_frame, "Additional Comments - Business Travel Only", r, variable=self.form_vars["evidence_summary"]); r += 1
         self.build_form_field(vehicle_frame, "Permit scope", r, variable=self.form_vars["permit_scope"], widget="combo", values=["Campus default", "Canterbury", "Medway only", "Tunbridge Wells only", "Friday only"]); r += 1
         self.build_form_field(vehicle_frame, "Collection location", r, variable=self.form_vars["collection_location"], widget="combo", values=COLLECTION_LOCATIONS)
 
@@ -183,16 +186,40 @@ class PermitApplicationForm(tk.Tk):
         )
         ttk.Label(notes_frame, text=note_text, justify="left", wraplength=760).pack(fill="x")
 
+        terms_frame = ttk.LabelFrame(self.form_body, text="Terms and conditions", padding=12)
+        terms_frame.grid(row=row, column=0, sticky="ew", pady=(0, 10))
+        terms_frame.columnconfigure(0, weight=1)
+        row += 1
+
+        ttk.Label(
+            terms_frame,
+            text="Please read the terms and conditions before submitting your application.",
+            wraplength=760,
+            justify="left",
+        ).grid(row=0, column=0, sticky="w", pady=(0, 8))
+
+        ttk.Button(terms_frame, text="Terms and conditions", command=self.show_terms_window).grid(row=1, column=0, sticky="w", pady=(0, 8))
+
+        ttk.Checkbutton(
+            terms_frame,
+            text="I have read and accept the terms and conditions.",
+            variable=self.accept_terms_var,
+            command=self.update_submit_state,
+        ).grid(row=2, column=0, sticky="w")
+
         buttons = ttk.Frame(self.form_body)
         buttons.grid(row=row, column=0, sticky="ew", pady=(8, 0))
         buttons.columnconfigure(0, weight=1)
         buttons.columnconfigure(1, weight=1)
 
-        ttk.Button(buttons, text="Submit application", command=self.save_application).grid(row=0, column=0, sticky="ew", padx=(0, 6))
+        self.submit_button = ttk.Button(buttons, text="Submit application", command=self.save_application)
+        self.submit_button.grid(row=0, column=0, sticky="ew", padx=(0, 6))
+
         ttk.Button(buttons, text="Clear form", command=self.clear_form).grid(row=0, column=1, sticky="ew", padx=(6, 0))
 
         # This just keeps the collection point sensible when the campus changes.
         self.form_vars["campus"].trace_add("write", self.on_campus_changed)
+        self.update_submit_state()
 
     # ------------------------------
     # Small form helpers
@@ -217,6 +244,62 @@ class PermitApplicationForm(tk.Tk):
             raise ValueError(f"{label} is required.")
         return cleaned
 
+    def load_terms_text(self):
+        try:
+            return self.terms_file.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"Could not find the terms file: {self.terms_file.name}. Make sure it sits in the same folder as this application file."
+            )
+
+    def show_terms_window(self):
+        try:
+            terms_text = self.load_terms_text()
+        except Exception as exc:
+            messagebox.showerror("Terms file missing", str(exc))
+            return
+
+        window = tk.Toplevel(self)
+        window.title("CCCU Parking Permit Terms and Conditions")
+        window.geometry("760x620")
+        window.minsize(640, 420)
+        window.transient(self)
+        window.grab_set()
+
+        outer = ttk.Frame(window, padding=12)
+        outer.pack(fill="both", expand=True)
+        outer.columnconfigure(0, weight=1)
+        outer.rowconfigure(1, weight=1)
+
+        ttk.Label(
+            outer,
+            text="CCCU Parking Permit Terms and Conditions",
+            font=("Segoe UI", 14, "bold"),
+        ).grid(row=0, column=0, sticky="w", pady=(0, 8))
+
+        text_frame = ttk.Frame(outer)
+        text_frame.grid(row=1, column=0, sticky="nsew")
+        text_frame.columnconfigure(0, weight=1)
+        text_frame.rowconfigure(0, weight=1)
+
+        text_widget = tk.Text(text_frame, wrap="word", font=("Segoe UI", 10), padx=10, pady=10)
+        text_widget.grid(row=0, column=0, sticky="nsew")
+
+        text_scroll = ttk.Scrollbar(text_frame, orient="vertical", command=text_widget.yview)
+        text_scroll.grid(row=0, column=1, sticky="ns")
+        text_widget.configure(yscrollcommand=text_scroll.set)
+
+        text_widget.insert("1.0", terms_text)
+        text_widget.configure(state="disabled")
+
+        ttk.Button(outer, text="Close", command=window.destroy).grid(row=2, column=0, sticky="e", pady=(10, 0))
+
+    def update_submit_state(self):
+        if self.accept_terms_var.get():
+            self.submit_button.configure(state="normal")
+        else:
+            self.submit_button.configure(state="disabled")
+
     def clear_form(self):
         self.clear_vars(
             self.form_vars,
@@ -239,8 +322,11 @@ class PermitApplicationForm(tk.Tk):
             self.essential_business_var,
             self.business_insurance_var,
             self.friday_only_var,
+            self.accept_terms_var,
         ]:
             flag.set(False)
+        if hasattr(self, "submit_button"):
+            self.update_submit_state()
 
     def on_campus_changed(self, *_):
         campus = self.form_vars["campus"].get().strip()
@@ -251,6 +337,9 @@ class PermitApplicationForm(tk.Tk):
     # ------------------------------
     def save_application(self):
         try:
+            if not self.accept_terms_var.get():
+                raise ValueError("You must read and accept the terms and conditions before submitting the form.")
+
             campus = self.form_vars["campus"].get().strip()
             applicant_type = self.form_vars["applicant_type"].get().strip()
             employment_type = self.form_vars["employment_type"].get().strip()
