@@ -22,7 +22,7 @@ from shared_db import (
 
 class CarParkAdminDashboard(tk.Tk):
     # This is the staff side of the system.
-    # Applicants should not use this one - they should use permit_application_form.py instead.
+    # Applicants should not use this one, they should use permit_application_form.py instead.
     def __init__(self):
         super().__init__()
         self.title("CCCU Car Park Monitor - Admin Dashboard")
