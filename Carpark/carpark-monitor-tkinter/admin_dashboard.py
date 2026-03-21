@@ -25,12 +25,17 @@ class CarParkAdminDashboard(tk.Tk):
     # Applicants should not use this one, they should use permit_application_form.py instead.
     def __init__(self):
         super().__init__()
-        self.title("CCCU Car Park Monitor - Admin Dashboard")
-        self.geometry("1680x980")
-        self.minsize(1320, 820)
+        self.title("CCCU Car Park Monitor - Admin Login")
+        self.geometry("420x260")
+        self.minsize(420, 260)
 
-        self.db = DatabaseManager(DB_PATH)
-        self.car_park_choices = self.db.car_park_options()
+        # Hard-coded login for now just so the admin dashboard is not open to everyone.
+        # You asked for admin / admin, so that is what this uses.
+        self.admin_username = "admin"
+        self.admin_password = "admin"
+
+        self.db = None
+        self.car_park_choices = []
 
         self.style = ttk.Style(self)
         try:
@@ -39,7 +44,68 @@ class CarParkAdminDashboard(tk.Tk):
             pass
 
         self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        self.login_username_var = tk.StringVar()
+        self.login_password_var = tk.StringVar()
+        self.login_frame = None
+
+        self.build_login_screen()
+
+    # ------------------------------
+    # Login screen
+    # ------------------------------
+    def build_login_screen(self):
+        self.login_frame = ttk.Frame(self, padding=24)
+        self.login_frame.grid(row=0, column=0, sticky="nsew")
+        self.login_frame.columnconfigure(0, weight=1)
+
+        card = ttk.LabelFrame(self.login_frame, text="Admin login", padding=18)
+        card.grid(row=0, column=0, sticky="n", pady=(16, 0))
+        card.columnconfigure(1, weight=1)
+
+        ttk.Label(card, text="CCCU Car Park Monitor", font=("Segoe UI", 16, "bold")).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 6))
+        ttk.Label(
+            card,
+            text="Please sign in before accessing the admin dashboard.",
+            font=("Segoe UI", 10),
+        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(0, 14))
+
+        ttk.Label(card, text="Username").grid(row=2, column=0, sticky="w", padx=(0, 8), pady=4)
+        username_entry = ttk.Entry(card, textvariable=self.login_username_var, width=28)
+        username_entry.grid(row=2, column=1, sticky="ew", pady=4)
+
+        ttk.Label(card, text="Password").grid(row=3, column=0, sticky="w", padx=(0, 8), pady=4)
+        password_entry = ttk.Entry(card, textvariable=self.login_password_var, show="*", width=28)
+        password_entry.grid(row=3, column=1, sticky="ew", pady=4)
+
+        ttk.Button(card, text="Login", command=self.try_login).grid(row=4, column=0, columnspan=2, sticky="ew", pady=(14, 0))
+
+        # Let Enter submit the login so it feels a bit cleaner.
+        self.bind("<Return>", self.try_login)
+        username_entry.focus_set()
+
+    def try_login(self, event=None):
+        username = self.login_username_var.get().strip()
+        password = self.login_password_var.get()
+
+        if username == self.admin_username and password == self.admin_password:
+            self.unbind("<Return>")
+            if self.login_frame is not None:
+                self.login_frame.destroy()
+            self.show_dashboard()
+        else:
+            messagebox.showerror("Login failed", "Incorrect username or password.")
+            self.login_password_var.set("")
+
+    def show_dashboard(self):
+        self.title("CCCU Car Park Monitor - Admin Dashboard")
+        self.geometry("1680x980")
+        self.minsize(1320, 820)
         self.rowconfigure(1, weight=1)
+
+        self.db = DatabaseManager(DB_PATH)
+        self.car_park_choices = self.db.car_park_options()
 
         self.build_header()
         self.build_notebook()
