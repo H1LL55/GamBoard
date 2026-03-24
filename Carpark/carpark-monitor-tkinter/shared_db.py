@@ -3,34 +3,35 @@ from datetime import datetime, date, timedelta
 from pathlib import Path
 
 
-# Keeping the database in the same folder as the scripts makes it easier to move the project around.
+# Store the database in the same folder as this file
 DB_PATH = Path(__file__).with_name("carpark_monitor.db")
 
 
-# This is just the starter data for the car parks so the system has something to work with straight away.
+# Starting car park data
 CAR_PARK_SEED = [
-    {"campus": "Canterbury", "name": "Verena Holmes Undercroft",                "standard_bays": 12,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 10, "department_bays": 0, "total_bays": 25},
-    {"campus": "Canterbury", "name": "Black Car Park (Verena Holmes)",          "standard_bays": 63,    "visitor_bays": 2, "short_stay_bays": 0, "electric_charging": 10, "disabled_bays": 5, "contractor_bays": 9, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 89},
-    {"campus": "Canterbury", "name": "Vernon Place",                            "standard_bays": 7,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 8},
-    {"campus": "Canterbury", "name": "Red Car Park (North Holmes Road)",        "standard_bays": 29,    "visitor_bays": 4, "short_stay_bays": 2, "electric_charging": 2, "disabled_bays": 7, "contractor_bays": 0, "motorcycle_bays": 1, "department_bays": 8, "total_bays": 53},
-    {"campus": "Canterbury", "name": "Green Car Park (Governor's Hse)",         "standard_bays": 32,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 33},
-    {"campus": "Canterbury", "name": "St Martins Priory",                       "standard_bays": 22,    "visitor_bays": 8, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 5, "total_bays": 37},
-    {"campus": "Canterbury", "name": "Augustine House",                         "standard_bays": 5,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 2, "total_bays": 7},
-    {"campus": "Canterbury", "name": "St. George's Student Union",              "standard_bays": 0,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 2},
-    {"campus": "Canterbury", "name": "Yellow Car Park (St. Gregory's) approx",  "standard_bays": 41,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 41},
-    {"campus": "Canterbury", "name": "TOSH Visitors Car Park",                  "standard_bays": 0,     "visitor_bays": 15, "short_stay_bays": 1, "electric_charging": 2, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 2, "total_bays": 21},
-    {"campus": "Canterbury", "name": "Mauve Car Park (TOSH)",                   "standard_bays": 9,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 9},
-    {"campus": "Canterbury", "name": "Grey Car Park (Prison)",                  "standard_bays": 44,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 6, "total_bays": 53},
-    {"campus": "Canterbury", "name": "Sports Centre",                           "standard_bays": 7,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 10},
-    {"campus": "Medway", "name": "Rowan Williams Court",                        "standard_bays": 121,   "visitor_bays": 30, "short_stay_bays": 0, "electric_charging": 2, "disabled_bays": 4, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 4, "total_bays": 157},
-    {"campus": "Medway", "name": "Cathedral Court",                             "standard_bays": 88,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 1, "total_bays": 89},
-    {"campus": "Medway", "name": "North Road",                                  "standard_bays": 15,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 15},
-    {"campus": "Tunbridge Wells", "name": "Salomons / Meadow Road",             "standard_bays": 0,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 2, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 2},
+    {"campus": "Canterbury", "name": "Verena Holmes Undercroft",                "standard_bays": 12,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 10, "department_bays": 0, "total_bays": 25},
+    {"campus": "Canterbury", "name": "Black Car Park (Verena Holmes)",          "standard_bays": 63,  "visitor_bays": 2,  "short_stay_bays": 0, "electric_charging": 10, "disabled_bays": 5, "contractor_bays": 9, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 89},
+    {"campus": "Canterbury", "name": "Vernon Place",                            "standard_bays": 7,   "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 8},
+    {"campus": "Canterbury", "name": "Red Car Park (North Holmes Road)",        "standard_bays": 29,  "visitor_bays": 4,  "short_stay_bays": 2, "electric_charging": 2,  "disabled_bays": 7, "contractor_bays": 0, "motorcycle_bays": 1,  "department_bays": 8, "total_bays": 53},
+    {"campus": "Canterbury", "name": "Green Car Park (Governor's Hse)",         "standard_bays": 32,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 33},
+    {"campus": "Canterbury", "name": "St Martins Priory",                       "standard_bays": 22,  "visitor_bays": 8,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 5, "total_bays": 37},
+    {"campus": "Canterbury", "name": "Augustine House",                         "standard_bays": 5,   "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 2, "total_bays": 7},
+    {"campus": "Canterbury", "name": "St. George's Student Union",              "standard_bays": 0,   "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 2},
+    {"campus": "Canterbury", "name": "Yellow Car Park (St. Gregory's) approx",  "standard_bays": 41,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 41},
+    {"campus": "Canterbury", "name": "TOSH Visitors Car Park",                  "standard_bays": 0,   "visitor_bays": 15, "short_stay_bays": 1, "electric_charging": 2,  "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 2, "total_bays": 21},
+    {"campus": "Canterbury", "name": "Mauve Car Park (TOSH)",                   "standard_bays": 9,   "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 9},
+    {"campus": "Canterbury", "name": "Grey Car Park (Prison)",                  "standard_bays": 44,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 6, "total_bays": 53},
+    {"campus": "Canterbury", "name": "Sports Centre",                           "standard_bays": 7,   "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 10},
+    {"campus": "Medway", "name": "Rowan Williams Court",                        "standard_bays": 121, "visitor_bays": 30, "short_stay_bays": 0, "electric_charging": 2,  "disabled_bays": 4, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 4, "total_bays": 157},
+    {"campus": "Medway", "name": "Cathedral Court",                             "standard_bays": 88,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 1, "total_bays": 89},
+    {"campus": "Medway", "name": "North Road",                                  "standard_bays": 15,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 15},
+    {"campus": "Tunbridge Wells", "name": "Salomons / Meadow Road",             "standard_bays": 0,   "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 2,  "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 2},
 ]
 
 
-# These are the policy / form options used across both apps.
+# Policy and form options
 INELIGIBLE_EMPLOYMENT = {"Sessional", "Contractor", "Associate", "Self-employed"}
+
 PERMIT_APP_STATUSES = [
     "Pending HoD Review",
     "Awaiting SMT Approval",
@@ -40,12 +41,14 @@ PERMIT_APP_STATUSES = [
     "Appeal Upheld",
     "Appeal Declined",
 ]
+
 ISSUED_PERMIT_STATUSES = [
     "Ready for Collection",
     "Active",
     "Inactive",
     "Lost",
 ]
+
 PERMIT_KIND_OPTIONS = [
     "Standard",
     "Friday Only",
@@ -54,6 +57,7 @@ PERMIT_KIND_OPTIONS = [
     "Accessible",
     "Business User",
 ]
+
 TEMP_PERMIT_OPTIONS = [
     "Temporary",
     "Day Permit",
@@ -64,6 +68,7 @@ TEMP_PERMIT_OPTIONS = [
     "Daily EV Charging Permit",
     "Visitor Day Permit",
 ]
+
 COLLECTION_LOCATIONS = [
     "Old Sessions House reception",
     "Medway reception",
@@ -71,7 +76,10 @@ COLLECTION_LOCATIONS = [
 ]
 
 
-# Small helpers so I do not keep rewriting the same date / text logic everywhere.
+# ---------------------------
+# Helper functions
+# ---------------------------
+
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -90,10 +98,12 @@ def parse_date(value: str) -> date:
 
 def ensure_date(value, label, allow_blank=True):
     value = (value or "").strip()
-    if not value:
+
+    if value == "":
         if allow_blank:
             return ""
         raise ValueError(f"{label} is required.")
+
     try:
         datetime.strptime(value, "%Y-%m-%d")
         return value
@@ -104,22 +114,29 @@ def ensure_date(value, label, allow_blank=True):
 def parse_car_park_id(value):
     if not value:
         return None
+
     try:
-        return int(str(value).split(" - ", 1)[0])
+        first_part = str(value).split(" - ", 1)[0]
+        return int(first_part)
     except (TypeError, ValueError) as exc:
         raise ValueError("Please choose a valid car park.") from exc
 
 
 def normalise_reg(reg):
-    return " ".join((reg or "").upper().split())
+    reg = (reg or "").upper()
+    reg = " ".join(reg.split())
+    return reg
 
 
 def as_yes_no(flag: bool) -> str:
-    return "Yes" if flag else "No"
+    if flag:
+        return "Yes"
+    return "No"
 
 
 def today_plus_days(days: int) -> str:
-    return (date.today() + timedelta(days=days)).isoformat()
+    future_date = date.today() + timedelta(days=days)
+    return future_date.isoformat()
 
 
 def default_collection_for_campus(campus: str) -> str:
@@ -131,8 +148,11 @@ def default_collection_for_campus(campus: str) -> str:
     return mapping.get(campus or "", "Old Sessions House reception")
 
 
+# ---------------------------
+# Database manager
+# ---------------------------
+
 class DatabaseManager:
-    # This class handles all database setup and queries so the UI files stay cleaner.
     def __init__(self, db_path: Path):
         self.db_path = db_path
         self.initialise()
@@ -260,20 +280,28 @@ class DatabaseManager:
                 );
                 """
             )
+
             self.migrate(conn)
             self.seed_car_parks(conn)
 
     def table_columns(self, conn, table_name):
-        return {row["name"] for row in conn.execute(f"PRAGMA table_info({table_name})").fetchall()}
+        rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+        columns = set()
+
+        for row in rows:
+            columns.add(row["name"])
+
+        return columns
 
     def add_column_if_missing(self, conn, table, column_def):
         column_name = column_def.split()[0]
-        if column_name not in self.table_columns(conn, table):
+        columns = self.table_columns(conn, table)
+
+        if column_name not in columns:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN {column_def}")
 
     def migrate(self, conn):
-        # This lets the database catch up if the table already existed from an older version.
-        for col in [
+        permit_application_columns = [
             "campus TEXT DEFAULT 'Canterbury'",
             "department TEXT",
             "contact_number TEXT",
@@ -300,22 +328,40 @@ class DatabaseManager:
             "appeal_status TEXT DEFAULT 'No Appeal'",
             "permit_scope TEXT",
             "collection_location TEXT",
-        ]:
-            self.add_column_if_missing(conn, "permit_applications", col)
+        ]
 
-        for col in ["booked_in_advance INTEGER NOT NULL DEFAULT 1", "permit_issued_in_advance INTEGER NOT NULL DEFAULT 1"]:
-            self.add_column_if_missing(conn, "visitor_bookings", col)
-        for col in ["approved_by TEXT"]:
-            self.add_column_if_missing(conn, "reservations", col)
-        for col in ["approved_by TEXT", "reason_recorded TEXT"]:
-            self.add_column_if_missing(conn, "temporary_permits", col)
-        for col in ["amount_full REAL NOT NULL DEFAULT 70", "amount_discounted REAL NOT NULL DEFAULT 35", "discount_deadline TEXT"]:
-            self.add_column_if_missing(conn, "penalties", col)
+        for column_def in permit_application_columns:
+            self.add_column_if_missing(conn, "permit_applications", column_def)
+
+        visitor_columns = [
+            "booked_in_advance INTEGER NOT NULL DEFAULT 1",
+            "permit_issued_in_advance INTEGER NOT NULL DEFAULT 1",
+        ]
+        for column_def in visitor_columns:
+            self.add_column_if_missing(conn, "visitor_bookings", column_def)
+
+        reservation_columns = ["approved_by TEXT"]
+        for column_def in reservation_columns:
+            self.add_column_if_missing(conn, "reservations", column_def)
+
+        temporary_permit_columns = ["approved_by TEXT", "reason_recorded TEXT"]
+        for column_def in temporary_permit_columns:
+            self.add_column_if_missing(conn, "temporary_permits", column_def)
+
+        penalty_columns = [
+            "amount_full REAL NOT NULL DEFAULT 70",
+            "amount_discounted REAL NOT NULL DEFAULT 35",
+            "discount_deadline TEXT",
+        ]
+        for column_def in penalty_columns:
+            self.add_column_if_missing(conn, "penalties", column_def)
 
     def seed_car_parks(self, conn):
         count = conn.execute("SELECT COUNT(*) FROM car_parks").fetchone()[0]
+
         if count:
             return
+
         for park in CAR_PARK_SEED:
             conn.execute(
                 """
@@ -326,21 +372,45 @@ class DatabaseManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    park["campus"], park["name"], park["standard_bays"], park["visitor_bays"],
-                    park["short_stay_bays"], park["electric_charging"], park["disabled_bays"],
-                    park["contractor_bays"], park["motorcycle_bays"], park["department_bays"], park["total_bays"],
+                    park["campus"],
+                    park["name"],
+                    park["standard_bays"],
+                    park["visitor_bays"],
+                    park["short_stay_bays"],
+                    park["electric_charging"],
+                    park["disabled_bays"],
+                    park["contractor_bays"],
+                    park["motorcycle_bays"],
+                    park["department_bays"],
+                    park["total_bays"],
                 ),
             )
 
-    # Basic shared lookups.
+    # ---------------------------
+    # Shared lookups
+    # ---------------------------
+
     def fetch_car_parks(self):
         with self.connect() as conn:
-            return conn.execute("SELECT * FROM car_parks ORDER BY campus, name").fetchall()
+            rows = conn.execute(
+                "SELECT * FROM car_parks ORDER BY campus, name"
+            ).fetchall()
+            return rows
 
     def car_park_options(self):
-        return [f"{row['id']} - {row['campus']} - {row['name']}" for row in self.fetch_car_parks()]
+        options = []
+        rows = self.fetch_car_parks()
 
-    # Permit application methods.
+        for row in rows:
+            option = f"{row['id']} - {row['campus']} - {row['name']}"
+            options.append(option)
+
+        return options
+
+    # ---------------------------
+    # Permit applications
+    # ---------------------------
+
     def add_permit_application(self, data):
         with self.connect() as conn:
             conn.execute(
@@ -356,21 +426,48 @@ class DatabaseManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    data["applicant_type"], data["campus"], data["full_name"], data["university_id"],
-                    data["payroll_number"], data["email"], data["department"], data["contact_number"],
-                    data["home_postcode"], data["employment_type"], data["vehicle_reg"],
-                    data["secondary_vehicle_reg"], data["reason"], data["accessibility_needs"], data["distance_km"],
-                    data["desired_car_park_id"], data["valid_from"], data["valid_to"], "Pending HoD Review", "",
-                    now_str(), int(data["blue_badge"]), int(data["mobility_need"]), int(data["registered_carer"]),
-                    int(data["child_under_11"]), int(data["essential_business_user"]), data["business_travel_trips"],
-                    int(data["business_insurance"]), int(data["friday_only_requested"]), data["planned_days"],
-                    data["evidence_summary"], data["permit_scope"], data["collection_location"], "Pending", "Pending", "No Appeal",
+                    data["applicant_type"],
+                    data["campus"],
+                    data["full_name"],
+                    data["university_id"],
+                    data["payroll_number"],
+                    data["email"],
+                    data["department"],
+                    data["contact_number"],
+                    data["home_postcode"],
+                    data["employment_type"],
+                    data["vehicle_reg"],
+                    data["secondary_vehicle_reg"],
+                    data["reason"],
+                    data["accessibility_needs"],
+                    data["distance_km"],
+                    data["desired_car_park_id"],
+                    data["valid_from"],
+                    data["valid_to"],
+                    "Pending HoD Review",
+                    "",
+                    now_str(),
+                    int(data["blue_badge"]),
+                    int(data["mobility_need"]),
+                    int(data["registered_carer"]),
+                    int(data["child_under_11"]),
+                    int(data["essential_business_user"]),
+                    data["business_travel_trips"],
+                    int(data["business_insurance"]),
+                    int(data["friday_only_requested"]),
+                    data["planned_days"],
+                    data["evidence_summary"],
+                    data["permit_scope"],
+                    data["collection_location"],
+                    "Pending",
+                    "Pending",
+                    "No Appeal",
                 ),
             )
 
     def list_permit_applications(self):
         with self.connect() as conn:
-            return conn.execute(
+            rows = conn.execute(
                 """
                 SELECT p.id, p.applicant_type, p.campus, p.full_name, p.vehicle_reg,
                        COALESCE(p.secondary_vehicle_reg, '') AS secondary_vehicle_reg,
@@ -381,10 +478,11 @@ class DatabaseManager:
                 ORDER BY p.id DESC
                 """
             ).fetchall()
+            return rows
 
     def get_permit_application(self, permit_id):
         with self.connect() as conn:
-            return conn.execute(
+            row = conn.execute(
                 """
                 SELECT p.*, COALESCE(c.name, '') AS car_park_name
                 FROM permit_applications p
@@ -393,40 +491,94 @@ class DatabaseManager:
                 """,
                 (permit_id,),
             ).fetchone()
+            return row
 
     def update_permit_status(self, permit_id, status, reviewer_name, notes):
         with self.connect() as conn:
-            fields = {"status": status, "reviewer_notes": notes}
+            fields = {}
+            fields["status"] = status
+            fields["reviewer_notes"] = notes
+
             if status == "Awaiting SMT Approval":
-                fields.update({"head_recommendation": "Supported", "head_recommended_by": reviewer_name, "head_recommendation_date": today_str()})
+                fields["head_recommendation"] = "Supported"
+                fields["head_recommended_by"] = reviewer_name
+                fields["head_recommendation_date"] = today_str()
+
             elif status == "Approved":
-                fields.update({"smt_decision": "Approved", "smt_decided_by": reviewer_name, "smt_decision_date": today_str()})
+                fields["smt_decision"] = "Approved"
+                fields["smt_decided_by"] = reviewer_name
+                fields["smt_decision_date"] = today_str()
+
             elif status == "Declined":
-                fields.update({"smt_decision": "Declined", "smt_decided_by": reviewer_name, "smt_decision_date": today_str()})
+                fields["smt_decision"] = "Declined"
+                fields["smt_decided_by"] = reviewer_name
+                fields["smt_decision_date"] = today_str()
+
             elif status.startswith("Appeal"):
                 fields["appeal_status"] = status
-            assignments = ", ".join(f"{key} = ?" for key in fields)
-            values = list(fields.values()) + [permit_id]
-            conn.execute(f"UPDATE permit_applications SET {assignments} WHERE id = ?", values)
 
-    # Issued permit methods.
+            assignment_parts = []
+            values = []
+
+            for key, value in fields.items():
+                assignment_parts.append(f"{key} = ?")
+                values.append(value)
+
+            assignments = ", ".join(assignment_parts)
+            values.append(permit_id)
+
+            conn.execute(
+                f"UPDATE permit_applications SET {assignments} WHERE id = ?",
+                values
+            )
+
+    # ---------------------------
+    # Issued permits
+    # ---------------------------
+
     def next_permit_number(self, conn):
-        count = conn.execute("SELECT COUNT(*) FROM issued_permits").fetchone()[0] + 1
-        return f"CCCU-P-{date.today().year}-{count:04d}"
+        count = conn.execute("SELECT COUNT(*) FROM issued_permits").fetchone()[0]
+        count = count + 1
+        year = date.today().year
+        return f"CCCU-P-{year}-{count:04d}"
 
     def issue_permit_from_application(self, application_id, permit_kind, campus_scope, expiry_date, collection_location, notes):
         with self.connect() as conn:
-            app = conn.execute("SELECT * FROM permit_applications WHERE id = ?", (application_id,)).fetchone()
+            app = conn.execute(
+                "SELECT * FROM permit_applications WHERE id = ?",
+                (application_id,)
+            ).fetchone()
+
             if not app:
                 raise ValueError("Permit application not found.")
+
             if app["status"] != "Approved":
                 raise ValueError("Only approved applications can be issued as permits.")
+
             existing = conn.execute(
-                "SELECT id FROM issued_permits WHERE application_id = ? AND status NOT IN ('Cancelled', 'Returned')",
+                """
+                SELECT id
+                FROM issued_permits
+                WHERE application_id = ?
+                  AND status NOT IN ('Cancelled', 'Returned')
+                """,
                 (application_id,),
             ).fetchone()
+
             if existing:
                 raise ValueError("A live issued permit already exists for this application.")
+
+            final_campus_scope = campus_scope or app["campus"]
+            final_collection_location = (
+                collection_location
+                or app["collection_location"]
+                or default_collection_for_campus(app["campus"])
+            )
+
+            issue_reason = app["reason"]
+            if not issue_reason:
+                issue_reason = "Issued from approved application"
+
             conn.execute(
                 """
                 INSERT INTO issued_permits (
@@ -439,14 +591,14 @@ class DatabaseManager:
                     application_id,
                     self.next_permit_number(conn),
                     permit_kind,
-                    campus_scope or app["campus"],
+                    final_campus_scope,
                     app["full_name"],
                     app["vehicle_reg"],
                     app["secondary_vehicle_reg"],
-                    app["reason"] or "Issued from approved application",
+                    issue_reason,
                     today_str(),
                     expiry_date,
-                    collection_location or app["collection_location"] or default_collection_for_campus(app["campus"]),
+                    final_collection_location,
                     "Ready for Collection",
                     notes,
                     now_str(),
@@ -455,7 +607,7 @@ class DatabaseManager:
 
     def list_issued_permits(self):
         with self.connect() as conn:
-            return conn.execute(
+            rows = conn.execute(
                 """
                 SELECT id, permit_number, holder_name, permit_kind, campus_scope,
                        vehicle_reg_primary, COALESCE(vehicle_reg_secondary, '') AS vehicle_reg_secondary,
@@ -464,34 +616,68 @@ class DatabaseManager:
                 ORDER BY id DESC
                 """
             ).fetchall()
+            return rows
 
     def get_issued_permit(self, permit_id):
         with self.connect() as conn:
-            return conn.execute("SELECT * FROM issued_permits WHERE id = ?", (permit_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM issued_permits WHERE id = ?",
+                (permit_id,)
+            ).fetchone()
+            return row
 
     def update_issued_permit(self, permit_id, status, notes, replacement_fee_due=0):
         with self.connect() as conn:
-            fields = {"status": status, "notes": notes, "replacement_fee_due": replacement_fee_due}
+            fields = {}
+            fields["status"] = status
+            fields["notes"] = notes
+            fields["replacement_fee_due"] = replacement_fee_due
+
             if status in {"Cancelled", "Returned"}:
                 fields["cancelled_at"] = now_str()
+
             if status == "Returned":
                 fields["return_received"] = 1
-            assignments = ", ".join(f"{key} = ?" for key in fields)
-            values = list(fields.values()) + [permit_id]
-            conn.execute(f"UPDATE issued_permits SET {assignments} WHERE id = ?", values)
+
+            assignment_parts = []
+            values = []
+
+            for key, value in fields.items():
+                assignment_parts.append(f"{key} = ?")
+                values.append(value)
+
+            assignments = ", ".join(assignment_parts)
+            values.append(permit_id)
+
+            conn.execute(
+                f"UPDATE issued_permits SET {assignments} WHERE id = ?",
+                values
+            )
 
     def update_issued_permit_regs(self, permit_id, reg1, reg2):
         with self.connect() as conn:
+            primary_reg = normalise_reg(reg1)
+
+            if reg2:
+                secondary_reg = normalise_reg(reg2)
+            else:
+                secondary_reg = ""
+
+            update_note = f"\n[{now_str()}] Vehicle details updated."
+
             conn.execute(
                 """
                 UPDATE issued_permits
                 SET vehicle_reg_primary = ?, vehicle_reg_secondary = ?, notes = COALESCE(notes, '') || ?
                 WHERE id = ?
                 """,
-                (normalise_reg(reg1), normalise_reg(reg2) if reg2 else "", f"\n[{now_str()}] Vehicle details updated.", permit_id),
+                (primary_reg, secondary_reg, update_note, permit_id),
             )
 
-    # Visitor methods.
+    # ---------------------------
+    # Visitors
+    # ---------------------------
+
     def add_visitor_booking(self, data):
         with self.connect() as conn:
             conn.execute(
@@ -503,15 +689,25 @@ class DatabaseManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    data["visitor_name"], data["host_name"], data["host_department"], data["email"], data["vehicle_reg"],
-                    data["visit_date"], data["car_park_id"], data["space_required"], "Booked", data["notes"], now_str(),
-                    int(data["booked_in_advance"]), int(data["permit_issued_in_advance"]),
+                    data["visitor_name"],
+                    data["host_name"],
+                    data["host_department"],
+                    data["email"],
+                    data["vehicle_reg"],
+                    data["visit_date"],
+                    data["car_park_id"],
+                    data["space_required"],
+                    "Booked",
+                    data["notes"],
+                    now_str(),
+                    int(data["booked_in_advance"]),
+                    int(data["permit_issued_in_advance"]),
                 ),
             )
 
     def list_visitor_bookings(self):
         with self.connect() as conn:
-            return conn.execute(
+            rows = conn.execute(
                 """
                 SELECT v.id, v.visitor_name, v.host_name, v.vehicle_reg, v.visit_date,
                        v.space_required, COALESCE(c.name, '') AS car_park, v.status
@@ -520,8 +716,12 @@ class DatabaseManager:
                 ORDER BY v.visit_date DESC, v.id DESC
                 """
             ).fetchall()
+            return rows
 
-    # Reservation methods.
+    # ---------------------------
+    # Reservations
+    # ---------------------------
+
     def add_reservation(self, data):
         with self.connect() as conn:
             conn.execute(
@@ -532,15 +732,24 @@ class DatabaseManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    data["reserved_for"], data["reservation_type"], data["contact_name"], data["vehicle_reg"],
-                    data["car_park_id"], data["bay_count"], data["start_date"], data["end_date"], "Active",
-                    data["notes"], now_str(), data["approved_by"],
+                    data["reserved_for"],
+                    data["reservation_type"],
+                    data["contact_name"],
+                    data["vehicle_reg"],
+                    data["car_park_id"],
+                    data["bay_count"],
+                    data["start_date"],
+                    data["end_date"],
+                    "Active",
+                    data["notes"],
+                    now_str(),
+                    data["approved_by"],
                 ),
             )
 
     def list_reservations(self):
         with self.connect() as conn:
-            return conn.execute(
+            rows = conn.execute(
                 """
                 SELECT r.id, r.reserved_for, r.reservation_type, r.contact_name,
                        COALESCE(r.vehicle_reg, '') AS vehicle_reg, r.start_date, r.end_date,
@@ -550,8 +759,12 @@ class DatabaseManager:
                 ORDER BY r.start_date DESC, r.id DESC
                 """
             ).fetchall()
+            return rows
 
-    # Temporary permit methods.
+    # ---------------------------
+    # Temporary permits
+    # ---------------------------
+
     def add_temporary_permit(self, data):
         with self.connect() as conn:
             conn.execute(
@@ -562,22 +775,34 @@ class DatabaseManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    data["permit_holder"], data["vehicle_reg"], data["permit_type"], data["start_date"], data["end_date"],
-                    "Active", data["notes"], now_str(), data["approved_by"], data["reason_recorded"],
+                    data["permit_holder"],
+                    data["vehicle_reg"],
+                    data["permit_type"],
+                    data["start_date"],
+                    data["end_date"],
+                    "Active",
+                    data["notes"],
+                    now_str(),
+                    data["approved_by"],
+                    data["reason_recorded"],
                 ),
             )
 
     def list_temporary_permits(self):
         with self.connect() as conn:
-            return conn.execute(
+            rows = conn.execute(
                 """
                 SELECT id, permit_holder, vehicle_reg, permit_type, start_date, end_date, status
                 FROM temporary_permits
                 ORDER BY start_date DESC, id DESC
                 """
             ).fetchall()
+            return rows
 
-    # Penalty methods.
+    # ---------------------------
+    # Penalties
+    # ---------------------------
+
     def add_penalty(self, data):
         with self.connect() as conn:
             conn.execute(
@@ -588,14 +813,23 @@ class DatabaseManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    data["vehicle_reg"], data["reason"], data["location"], data["issued_by"], data["external_status"],
-                    data["appeal_status"], data["notes"], now_str(), 70, 35, today_plus_days(14),
+                    data["vehicle_reg"],
+                    data["reason"],
+                    data["location"],
+                    data["issued_by"],
+                    data["external_status"],
+                    data["appeal_status"],
+                    data["notes"],
+                    now_str(),
+                    70,
+                    35,
+                    today_plus_days(14),
                 ),
             )
 
     def list_penalties(self):
         with self.connect() as conn:
-            return conn.execute(
+            rows = conn.execute(
                 """
                 SELECT id, vehicle_reg, reason, location, issued_by,
                        external_status, appeal_status, issued_at
@@ -603,24 +837,101 @@ class DatabaseManager:
                 ORDER BY id DESC
                 """
             ).fetchall()
+            return rows
 
-    # These are the numbers shown on the main dashboard cards.
+    # ---------------------------
+    # Dashboard numbers
+    # ---------------------------
+
     def dashboard_counts(self):
         with self.connect() as conn:
+            today = today_str()
+
+            car_parks = conn.execute(
+                "SELECT COUNT(*) FROM car_parks"
+            ).fetchone()[0]
+
+            total_spaces = conn.execute(
+                "SELECT COALESCE(SUM(total_bays),0) FROM car_parks WHERE campus='Canterbury'"
+            ).fetchone()[0]
+
+            pending_permits = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM permit_applications
+                WHERE status IN ('Pending HoD Review', 'Awaiting SMT Approval')
+                """
+            ).fetchone()[0]
+
+            approved_permits = conn.execute(
+                "SELECT COUNT(*) FROM permit_applications WHERE status='Approved'"
+            ).fetchone()[0]
+
+            issued_permits = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM issued_permits
+                WHERE status NOT IN ('Cancelled', 'Returned')
+                """
+            ).fetchone()[0]
+
+            friday_only = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM issued_permits
+                WHERE permit_kind='Friday Only'
+                  AND status NOT IN ('Cancelled', 'Returned')
+                """
+            ).fetchone()[0]
+
+            today_visitors = conn.execute(
+                "SELECT COUNT(*) FROM visitor_bookings WHERE visit_date = ?",
+                (today,),
+            ).fetchone()[0]
+
+            active_reservations = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM reservations
+                WHERE status='Active'
+                  AND start_date <= ?
+                  AND end_date >= ?
+                """,
+                (today, today),
+            ).fetchone()[0]
+
+            active_temporary_permits = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM temporary_permits
+                WHERE status='Active'
+                  AND start_date <= ?
+                  AND end_date >= ?
+                """,
+                (today, today),
+            ).fetchone()[0]
+
+            penalties = conn.execute(
+                "SELECT COUNT(*) FROM penalties"
+            ).fetchone()[0]
+
             return {
-                "car_parks": conn.execute("SELECT COUNT(*) FROM car_parks").fetchone()[0],
-                "total_spaces": conn.execute("SELECT COALESCE(SUM(total_bays),0) FROM car_parks WHERE campus='Canterbury'").fetchone()[0],
-                "pending_permits": conn.execute("SELECT COUNT(*) FROM permit_applications WHERE status IN ('Pending HoD Review', 'Awaiting SMT Approval')").fetchone()[0],
-                "approved_permits": conn.execute("SELECT COUNT(*) FROM permit_applications WHERE status='Approved'").fetchone()[0],
-                "issued_permits": conn.execute("SELECT COUNT(*) FROM issued_permits WHERE status NOT IN ('Cancelled', 'Returned')").fetchone()[0],
-                "friday_only": conn.execute("SELECT COUNT(*) FROM issued_permits WHERE permit_kind='Friday Only' AND status NOT IN ('Cancelled', 'Returned')").fetchone()[0],
-                "today_visitors": conn.execute("SELECT COUNT(*) FROM visitor_bookings WHERE visit_date = ?", (today_str(),)).fetchone()[0],
-                "active_reservations": conn.execute("SELECT COUNT(*) FROM reservations WHERE status='Active' AND start_date <= ? AND end_date >= ?", (today_str(), today_str())).fetchone()[0],
-                "active_temporary_permits": conn.execute("SELECT COUNT(*) FROM temporary_permits WHERE status='Active' AND start_date <= ? AND end_date >= ?", (today_str(), today_str())).fetchone()[0],
-                "penalties": conn.execute("SELECT COUNT(*) FROM penalties").fetchone()[0],
+                "car_parks": car_parks,
+                "total_spaces": total_spaces,
+                "pending_permits": pending_permits,
+                "approved_permits": approved_permits,
+                "issued_permits": issued_permits,
+                "friday_only": friday_only,
+                "today_visitors": today_visitors,
+                "active_reservations": active_reservations,
+                "active_temporary_permits": active_temporary_permits,
+                "penalties": penalties,
             }
 
-    # This is the patrol check logic so staff can see if a reg matches anything valid.
+    # ---------------------------
+    # Vehicle check
+    # ---------------------------
+
     def check_vehicle(self, vehicle_reg, check_date):
         with self.connect() as conn:
             issued = conn.execute(
@@ -635,6 +946,7 @@ class DatabaseManager:
                 """,
                 (vehicle_reg, vehicle_reg, check_date, check_date),
             ).fetchall()
+
             temp_permit = conn.execute(
                 """
                 SELECT permit_holder, permit_type, start_date, end_date
@@ -647,6 +959,7 @@ class DatabaseManager:
                 """,
                 (vehicle_reg, check_date, check_date),
             ).fetchone()
+
             visitor = conn.execute(
                 """
                 SELECT visitor_name, host_name, visit_date, COALESCE(c.name, '') AS car_park
@@ -659,6 +972,7 @@ class DatabaseManager:
                 """,
                 (vehicle_reg, check_date),
             ).fetchone()
+
             reservation = conn.execute(
                 """
                 SELECT reserved_for, reservation_type, contact_name, start_date, end_date,
@@ -673,6 +987,7 @@ class DatabaseManager:
                 """,
                 (vehicle_reg, check_date, check_date),
             ).fetchone()
+
             penalties = conn.execute(
                 """
                 SELECT id, reason, location, issued_at
@@ -682,6 +997,7 @@ class DatabaseManager:
                 """,
                 (vehicle_reg,),
             ).fetchall()
+
             return {
                 "issued_permits": issued,
                 "temporary_permit": temp_permit,

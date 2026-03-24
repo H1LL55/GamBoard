@@ -36,19 +36,8 @@ from shared_db import (
 class ParisMixin:
     # Paris - work on this file
     # Permit applications tab and issued permits tab.
-    #
     # This class is a "mixin", which means it is designed to be added into another class
     # rather than used by itself.
-    #
-    # It assumes the main program already has things such as:
-    # - self.db                      -> the database object
-    # - self.permits_tab             -> the permit applications tab
-    # - self.issued_permits_tab      -> the issued permits tab
-    # - self.selected_tree_id(...)   -> helper method to get selected row ID from a table
-    # - self.require(...)            -> helper method to make sure a field is not blank
-    # - self.refresh_all()           -> helper method to reload all tables
-    # - self.refresh_permits()       -> helper method to reload permit applications
-    # - self.refresh_issued_permits()-> helper method to reload issued permits
 
     def build_permits_tab(self):
         # This method builds the whole "permits" tab in the GUI.
@@ -57,28 +46,28 @@ class ParisMixin:
         # 2. A review area for changing application status
         # 3. An issue area for creating an issued permit from an approved application
 
-        # Make column 0 in the permits tab expand when the window gets bigger.
+        # Make column 0 in the permits tab expand when the window gets bigger
         self.permits_tab.columnconfigure(0, weight=1)
 
-        # Make row 0 expand too, so the main content stretches with the window.
+        # Make row 0 expand as well, so the main content stretches with the window
         self.permits_tab.rowconfigure(0, weight=1)
 
-        # Create a bordered frame with a title to hold the application table and controls.
+        # Create a bordered frame with a title to hold the application table and controls
         table_frame = ttk.LabelFrame(
             self.permits_tab,
             text="Applications and review",
             padding=8
         )
 
-        # Put the frame into the permits tab.
-        # sticky="nsew" means it stretches in all directions.
+        # Puts the frame into the permits tab
+        # sticky="nsew" means it stretches in all directions
         table_frame.grid(row=0, column=0, sticky="nsew")
 
         # Make the inside of the frame expandable too.
         table_frame.columnconfigure(0, weight=1)
         table_frame.rowconfigure(0, weight=1)
 
-        # These are the column headings that will appear in the Treeview table.
+        # These are the column headings that will appear in the Treeview table
         permit_columns = (
             "ID",
             "Type",
@@ -93,7 +82,7 @@ class ParisMixin:
             "Created"
         )
 
-        # Create the Treeview widget.
+        # Creates the Treeview widget
         # This is the table that shows all permit applications.
         self.permits_tree = ttk.Treeview(
             table_frame,
