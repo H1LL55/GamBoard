@@ -572,7 +572,7 @@ class ParisMixin:
             textvariable=self.issued_notes_var
         ).grid(row=0, column=3, sticky="ew", padx=(8, 12))
 
-        # Label for replacement fee.
+        # Label for replacement fee
         ttk.Label(controls, text="Replacement fee").grid(
             row=0, column=4, sticky="w"
         )
@@ -687,8 +687,7 @@ class ParisMixin:
             messagebox.showerror("Could not update", str(exc))
 
     def update_selected_issued_permit_regs(self):
-        # This method updates the vehicle registration details
-        # for the selected issued permit.
+        # This method updates the vehicle registration detailsfor the selected issued permit.
 
         try:
             # Get the selected issued permit ID.
@@ -714,15 +713,15 @@ class ParisMixin:
             # Refresh the UI to show the new registration data.
             self.refresh_all()
 
-            # Clear the entry boxes after a successful update.
+            # Clears the entry boxes after a successful update
             self.new_reg1_var.set("")
             self.new_reg2_var.set("")
 
-            # Show success message.
+            # Show success message
             messagebox.showinfo("Updated", "Permit vehicle details updated.")
 
         except Exception as exc:
-            # Show any error message if something fails.
+            # Show any error message if something fails
             messagebox.showerror("Could not update", str(exc))
 
     def show_selected_issued_permit(self):
@@ -732,7 +731,7 @@ class ParisMixin:
         # Get the selected issued permit ID.
         permit_id = self.selected_tree_id(self.issued_permits_tree)
 
-        # If nothing is selected, warn the user and stop.
+        # If nothing is selected, warn the user and stop
         if not permit_id:
             messagebox.showwarning(
                 "No selection",
@@ -740,10 +739,10 @@ class ParisMixin:
             )
             return
 
-        # Get the full issued permit record from the database.
+        # Gets the full issued permit record from the database
         record = self.db.get_issued_permit(permit_id)
 
-        # Build a readable list of lines showing all important details.
+        # Builds a readable list of lines showing all important details
         details = [
             f"Issued Permit #{record['id']}",
             f"Permit number: {record['permit_number']}",
@@ -762,7 +761,7 @@ class ParisMixin:
             f"Notes: {record['notes'] or '-'}",
         ]
 
-        # Show the details in the reusable text popup window.
+        # Shows the details in the reusable text popup window
         self.show_text_window(
             f"Issued permit #{record['id']}",
             "\n".join(details)
