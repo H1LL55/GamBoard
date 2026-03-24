@@ -238,7 +238,6 @@ class JennaMixin:
         controls.columnconfigure(3, weight=1)
 
         self.check_reg_var = tk.StringVar()
-        self.check_date_var = tk.StringVar(value=today_str())
 
         ttk.Label(controls, text="Vehicle reg").grid(row=0, column=0, sticky="w")
         ttk.Entry(
@@ -247,18 +246,11 @@ class JennaMixin:
             width=20
         ).grid(row=0, column=1, sticky="w", padx=(8, 20))
 
-        ttk.Label(controls, text="Check date").grid(row=0, column=2, sticky="w")
-        ttk.Entry(
-            controls,
-            textvariable=self.check_date_var,
-            width=14
-        ).grid(row=0, column=3, sticky="w", padx=(8, 12))
-
         ttk.Button(
             controls,
             text="Check vehicle",
             command=self.check_vehicle
-        ).grid(row=0, column=4, sticky="e")
+        ).grid(row=0, column=2, sticky="e")
 
         result_frame = ttk.LabelFrame(self.checker_tab, text="Result", padding=8)
         result_frame.grid(row=1, column=0, sticky="nsew")
@@ -285,11 +277,7 @@ class JennaMixin:
             reg = normalise_reg(
                 self.require(self.check_reg_var.get(), "Vehicle reg")
             )
-            check_date = ensure_date(
-                self.check_date_var.get(),
-                "Check date",
-                allow_blank=False
-            )
+            check_date = today_str()
 
             result = self.db.check_vehicle(reg, check_date)
 

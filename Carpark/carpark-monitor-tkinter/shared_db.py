@@ -25,7 +25,7 @@ CAR_PARK_SEED = [
     {"campus": "Medway", "name": "Rowan Williams Court",                        "standard_bays": 121, "visitor_bays": 30, "short_stay_bays": 0, "electric_charging": 2,  "disabled_bays": 4, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 4, "total_bays": 157},
     {"campus": "Medway", "name": "Cathedral Court",                             "standard_bays": 88,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 1, "total_bays": 89},
     {"campus": "Medway", "name": "North Road",                                  "standard_bays": 15,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 0,  "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0,  "department_bays": 0, "total_bays": 15},
-    {"campus": "Tunbridge Wells", "name": "Lucy Fildes",                        "standard_bays": 39,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 2,  "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 3,  "department_bays": 0, "total_bays": 46},
+    {"campus": "Tunbridge Wells", "name": "Luci Fildes",                        "standard_bays": 39,  "visitor_bays": 0,  "short_stay_bays": 0, "electric_charging": 2,  "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 3,  "department_bays": 0, "total_bays": 46},
 ]
 
 

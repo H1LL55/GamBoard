@@ -19,7 +19,6 @@ class JackMixin:
 
         kpi_titles = [
             ("car_parks", "Car parks"),
-            ("total_spaces", "Canterbury total spaces"),
             ("pending_permits", "Pending permit reviews"),
             ("approved_permits", "Approved applications"),
             ("issued_permits", "Issued permits"),
