@@ -21,7 +21,7 @@ class PermitApplicationForm(tk.Tk):
     # The idea is people fill the form in here, and admin staff review it in the dashboard file.
     def __init__(self):
         super().__init__()
-        self.title("CCCU Permit Application Form")
+        self.title("CCCU Staff Permit Application Form")
         self.geometry("980x900")
         self.minsize(860, 760)
 
@@ -48,10 +48,10 @@ class PermitApplicationForm(tk.Tk):
         header.grid(row=0, column=0, sticky="ew")
         header.columnconfigure(0, weight=1)
 
-        ttk.Label(header, text="CCCU Parking Permit Application", font=("Segoe UI", 20, "bold")).grid(row=0, column=0, sticky="w")
+        ttk.Label(header, text="CCCU Staff Parking Permit Application", font=("Segoe UI", 20, "bold")).grid(row=0, column=0, sticky="w")
         ttk.Label(
             header,
-            text="Use this form to submit a new permit request. Once saved, it will appear in the admin dashboard for HoD / SMT review.",
+            text="Use this form to submit a new permit request. Once saved, it will appear in the admin dashboard.",
             font=("Segoe UI", 10),
         ).grid(row=1, column=0, sticky="w", pady=(4, 0))
 
@@ -129,10 +129,8 @@ class PermitApplicationForm(tk.Tk):
         row += 1
 
         r = 0
-        self.build_form_field(details_frame, "Applicant type", r, variable=self.form_vars["applicant_type"], widget="combo", values=["Staff", "Student"]); r += 1
         self.build_form_field(details_frame, "Campus", r, variable=self.form_vars["campus"], widget="combo", values=["Canterbury", "Medway", "Tunbridge Wells"]); r += 1
         self.build_form_field(details_frame, "Full name", r, variable=self.form_vars["full_name"]); r += 1
-        self.build_form_field(details_frame, "University / student ID", r, variable=self.form_vars["university_id"]); r += 1
         self.build_form_field(details_frame, "Payroll no. (staff)", r, variable=self.form_vars["payroll_number"]); r += 1
         self.build_form_field(details_frame, "Department", r, variable=self.form_vars["department"]); r += 1
         self.build_form_field(details_frame, "Contact number", r, variable=self.form_vars["contact_number"]); r += 1
