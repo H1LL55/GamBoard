@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 class JackMixin:
-    # Kris - work on this file
+    # Jack - work on this file
     # Dashboard tab and all refresh functions.
 
     def build_dashboard_tab(self):
@@ -25,7 +25,6 @@ class JackMixin:
             ("issued_permits", "Issued permits"),
             ("friday_only", "Friday-only permits"),
             ("today_visitors", "Today's visitors"),
-            ("active_reservations", "Active reservations"),
             ("active_temporary_permits", "Active temp/day permits"),
             ("penalties", "Penalty notices"),
         ]

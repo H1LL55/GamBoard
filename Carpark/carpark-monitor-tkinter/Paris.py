@@ -444,7 +444,7 @@ class ParisMixin:
             f"Payroll / University ID: "
             f"{record['payroll_number'] or record['university_id'] or '-'}",
             f"Contact number: {record['contact_number'] or '-'}",
-            f"Employment type: {record['employment_type'] or '-'}",
+            f"Permit type: {record['employment_type'] or '-'}",
             f"Home postcode: {record['home_postcode'] or '-'}",
             f"Vehicle reg 1: {record['vehicle_reg']}",
             f"Vehicle reg 2: {record['secondary_vehicle_reg'] or '-'}",
