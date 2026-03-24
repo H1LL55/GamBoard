@@ -170,6 +170,13 @@ class ParisMixin:
             command=self.refresh_permits
         ).grid(row=0, column=8, sticky="ew")
 
+        # Button to delete the selected permit application.
+        ttk.Button(
+            review,
+            text="Delete selected",
+            command=self.delete_selected_permit
+        ).grid(row=0, column=9, sticky="ew", padx=(8, 0))
+
         # Create another frame under the review controls.
         # This section is for turning an approved application into a real issued permit.
         issue_frame = ttk.Frame(table_frame)
@@ -293,6 +300,41 @@ class ParisMixin:
         except Exception as exc:
             # If anything goes wrong, show the error in a popup.
             messagebox.showerror("Could not update", str(exc))
+
+    def delete_selected_permit(self):
+        # This method deletes the selected permit application from the database.
+
+        try:
+            # Get the selected application ID from the applications table.
+            permit_id = self.selected_tree_id(self.permits_tree)
+
+            # If no row is selected, warn the user and stop.
+            if not permit_id:
+                messagebox.showwarning(
+                    "No selection",
+                    "Please select a permit application to delete."
+                )
+                return
+
+            # Ask for confirmation before deleting (safety measure).
+            if not messagebox.askyesno(
+                "Confirm delete",
+                f"Are you sure you want to delete permit application {permit_id}?"
+            ):
+                return
+
+            # Call the database method to delete the permit application.
+            self.db.delete_permit_application(permit_id)
+
+            # Refresh all tables so the deleted data disappears from screen.
+            self.refresh_all()
+
+            # Tell the user the action worked.
+            messagebox.showinfo("Deleted", "Permit application deleted.")
+
+        except Exception as exc:
+            # If anything goes wrong, show the error in a popup.
+            messagebox.showerror("Could not delete", str(exc))
 
     def issue_selected_permit(self):
         # This method turns a selected application into an issued permit.
@@ -650,6 +692,13 @@ class ParisMixin:
             command=self.refresh_issued_permits
         ).grid(row=1, column=6, sticky="ew", pady=(8, 0))
 
+        # Button to delete the selected issued permit.
+        ttk.Button(
+            controls,
+            text="Delete selected",
+            command=self.delete_selected_issued_permit
+        ).grid(row=1, column=7, sticky="ew", padx=(8, 0), pady=(8, 0))
+
     def update_selected_issued_permit(self):
         # This method updates the selected issued permit record,
         # such as its status, notes and replacement fee.
@@ -766,3 +815,38 @@ class ParisMixin:
             f"Issued permit #{record['id']}",
             "\n".join(details)
         )
+
+    def delete_selected_issued_permit(self):
+        # This method deletes the selected issued permit from the database.
+
+        try:
+            # Get the selected issued permit ID from the table.
+            permit_id = self.selected_tree_id(self.issued_permits_tree)
+
+            # If no row is selected, warn the user and stop.
+            if not permit_id:
+                messagebox.showwarning(
+                    "No selection",
+                    "Please select an issued permit to delete."
+                )
+                return
+
+            # Ask for confirmation before deleting (safety measure).
+            if not messagebox.askyesno(
+                "Confirm delete",
+                f"Are you sure you want to delete issued permit {permit_id}?"
+            ):
+                return
+
+            # Call the database method to delete the issued permit.
+            self.db.delete_issued_permit(permit_id)
+
+            # Refresh all tables so the deleted data disappears from screen.
+            self.refresh_all()
+
+            # Tell the user the action worked.
+            messagebox.showinfo("Deleted", "Issued permit deleted.")
+
+        except Exception as exc:
+            # If anything goes wrong, show the error in a popup.
+            messagebox.showerror("Could not delete", str(exc))

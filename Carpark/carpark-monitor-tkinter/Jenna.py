@@ -138,6 +138,12 @@ class JennaMixin:
             command=self.refresh_temp_permits
         ).grid(row=1, column=0, sticky="e", pady=(8, 0))
 
+        ttk.Button(
+            table_frame,
+            text="Delete selected",
+            command=self.delete_selected_temp_permit
+        ).grid(row=1, column=1, sticky="w", padx=(8, 0), pady=(8, 0))
+
     def save_temporary_permit(self):
         try:
             data = {
@@ -183,6 +189,41 @@ class JennaMixin:
 
         except Exception as exc:
             messagebox.showerror("Could not save", str(exc))
+
+    def delete_selected_temp_permit(self):
+        # This method deletes the selected temporary permit from the database.
+
+        try:
+            # Get the selected temporary permit ID from the table.
+            permit_id = self.selected_tree_id(self.temp_tree)
+
+            # If no row is selected, warn the user and stop.
+            if not permit_id:
+                messagebox.showwarning(
+                    "No selection",
+                    "Please select a temporary permit to delete."
+                )
+                return
+
+            # Ask for confirmation before deleting (safety measure).
+            if not messagebox.askyesno(
+                "Confirm delete",
+                f"Are you sure you want to delete temporary permit {permit_id}?"
+            ):
+                return
+
+            # Call the database method to delete the temporary permit.
+            self.db.delete_temporary_permit(permit_id)
+
+            # Refresh all tables so the deleted data disappears from screen.
+            self.refresh_all()
+
+            # Tell the user the action worked.
+            messagebox.showinfo("Deleted", "Temporary permit deleted.")
+
+        except Exception as exc:
+            # If anything goes wrong, show the error in a popup.
+            messagebox.showerror("Could not delete", str(exc))
 
     def build_checker_tab(self):
         self.checker_tab.columnconfigure(0, weight=1)
@@ -488,6 +529,12 @@ class JennaMixin:
             command=self.refresh_penalties
         ).grid(row=1, column=0, sticky="e", pady=(8, 0))
 
+        ttk.Button(
+            table_frame,
+            text="Delete selected",
+            command=self.delete_selected_penalty
+        ).grid(row=1, column=1, sticky="w", padx=(8, 0), pady=(8, 0))
+
     def save_penalty(self):
         try:
             data = {
@@ -527,6 +574,41 @@ class JennaMixin:
 
         except Exception as exc:
             messagebox.showerror("Could not save", str(exc))
+
+    def delete_selected_penalty(self):
+        # This method deletes the selected penalty notice from the database.
+
+        try:
+            # Get the selected penalty ID from the table.
+            penalty_id = self.selected_tree_id(self.penalties_tree)
+
+            # If no row is selected, warn the user and stop.
+            if not penalty_id:
+                messagebox.showwarning(
+                    "No selection",
+                    "Please select a penalty notice to delete."
+                )
+                return
+
+            # Ask for confirmation before deleting (safety measure).
+            if not messagebox.askyesno(
+                "Confirm delete",
+                f"Are you sure you want to delete penalty {penalty_id}?"
+            ):
+                return
+
+            # Call the database method to delete the penalty.
+            self.db.delete_penalty(penalty_id)
+
+            # Refresh all tables so the deleted data disappears from screen.
+            self.refresh_all()
+
+            # Tell the user the action worked.
+            messagebox.showinfo("Deleted", "Penalty notice deleted.")
+
+        except Exception as exc:
+            # If anything goes wrong, show the error in a popup.
+            messagebox.showerror("Could not delete", str(exc))
 
     def build_form_field(
         self,
