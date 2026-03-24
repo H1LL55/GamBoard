@@ -640,8 +640,40 @@ class JennaMixin:
         return tree.item(selected[0], "values")[0]
 
     def replace_tree_data(self, tree, rows):
+        # Preserve selection during refresh
+        selected_items = tree.selection()
+        selected_first_value = None
+        selected_index = None
+        
+        if selected_items:
+            try:
+                # Get the first selected item's first column value (usually the ID)
+                selected_first_value = tree.item(selected_items[0], "values")[0]
+                # Get the index of the selected item
+                all_children = tree.get_children()
+                selected_index = list(all_children).index(selected_items[0])
+            except (IndexError, ValueError):
+                pass
+        
+        # Clear all items
         for item in tree.get_children():
             tree.delete(item)
 
+        # Repopulate tree
+        new_item_ids = []
         for row in rows:
-            tree.insert("", "end", values=tuple(row))
+            item_id = tree.insert("", "end", values=tuple(row))
+            new_item_ids.append((item_id, row[0] if row else None))
+        
+        # Restore selection
+        if selected_first_value is not None:
+            # Try to find the item by its first value (ID)
+            for item_id, first_value in new_item_ids:
+                if first_value == selected_first_value:
+                    tree.selection_set(item_id)
+                    tree.focus(item_id)
+                    break
+        elif selected_index is not None and selected_index < len(new_item_ids):
+            # If ID is gone, try to select by index
+            tree.selection_set(new_item_ids[selected_index][0])
+            tree.focus(new_item_ids[selected_index][0])

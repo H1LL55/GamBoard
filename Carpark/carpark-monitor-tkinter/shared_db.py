@@ -191,7 +191,7 @@ class DatabaseManager:
                     vehicle_reg TEXT NOT NULL,
                     reason TEXT,
                     accessibility_needs TEXT,
-                    distance_km REAL,
+                    distance_miles REAL,
                     desired_car_park_id INTEGER,
                     valid_from TEXT,
                     valid_to TEXT,
@@ -418,7 +418,7 @@ class DatabaseManager:
                 INSERT INTO permit_applications (
                     applicant_type, campus, full_name, university_id, payroll_number, email, department,
                     contact_number, home_postcode, employment_type, vehicle_reg, secondary_vehicle_reg,
-                    reason, accessibility_needs, distance_km, desired_car_park_id, valid_from, valid_to,
+                    reason, accessibility_needs, distance_miles, desired_car_park_id, valid_from, valid_to,
                     status, reviewer_notes, created_at, blue_badge, mobility_need, registered_carer,
                     child_under_11, essential_business_user, business_travel_trips, business_insurance,
                     friday_only_requested, planned_days, evidence_summary, permit_scope, collection_location,
@@ -440,7 +440,7 @@ class DatabaseManager:
                     data["secondary_vehicle_reg"],
                     data["reason"],
                     data["accessibility_needs"],
-                    data["distance_km"],
+                    data["distance_miles"],
                     data["desired_car_park_id"],
                     data["valid_from"],
                     data["valid_to"],
@@ -469,7 +469,7 @@ class DatabaseManager:
         with self.connect() as conn:
             rows = conn.execute(
                 """
-                SELECT p.id, p.applicant_type, p.campus, p.full_name, p.vehicle_reg,
+                SELECT p.id, p.applicant_type, p.campus, p.distance_miles, p.full_name, p.vehicle_reg,
                        COALESCE(p.secondary_vehicle_reg, '') AS secondary_vehicle_reg,
                        p.employment_type, p.email,
                        COALESCE(c.name, '') AS car_park, p.status, p.created_at

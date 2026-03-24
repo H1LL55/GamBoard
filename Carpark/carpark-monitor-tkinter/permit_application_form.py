@@ -101,7 +101,7 @@ class PermitApplicationForm(tk.Tk):
             "secondary_vehicle_reg": tk.StringVar(),
             "reason": tk.StringVar(),
             "accessibility_needs": tk.StringVar(),
-            "distance_km": tk.StringVar(),
+            "distance_miles": tk.StringVar(),
             "desired_car_park": tk.StringVar(),
             "valid_from": tk.StringVar(value=today_str()),
             "valid_to": tk.StringVar(value=default_expiry_str()),
@@ -148,7 +148,7 @@ class PermitApplicationForm(tk.Tk):
         self.build_form_field(vehicle_frame, "Vehicle reg 2", r, variable=self.form_vars["secondary_vehicle_reg"]); r += 1
         self.build_form_field(vehicle_frame, "Reason / justification", r, variable=self.form_vars["reason"]); r += 1
         self.build_form_field(vehicle_frame, "Accessibility / health notes", r, variable=self.form_vars["accessibility_needs"]); r += 1
-        self.build_form_field(vehicle_frame, "Distance from campus (km)", r, variable=self.form_vars["distance_km"]); r += 1
+        self.build_form_field(vehicle_frame, "Distance from campus (miles)", r, variable=self.form_vars["distance_miles"]); r += 1
         self.build_form_field(vehicle_frame, "Desired car park", r, variable=self.form_vars["desired_car_park"], widget="combo", values=self.car_park_choices); r += 1
         self.build_form_field(vehicle_frame, "Valid from", r, variable=self.form_vars["valid_from"]); r += 1
         self.build_form_field(vehicle_frame, "Valid to", r, variable=self.form_vars["valid_to"]); r += 1
@@ -361,10 +361,10 @@ class PermitApplicationForm(tk.Tk):
             if essential_business_user and (trips_per_week < 3 or not business_insurance):
                 raise ValueError("Essential business users should have at least 3 business trips per week and business insurance recorded.")
 
-            distance = self.form_vars["distance_km"].get().strip()
-            distance_km = float(distance) if distance else None
+            distance = self.form_vars["distance_miles"].get().strip()
+            distance_miles = float(distance) if distance else None
 
-            if applicant_type == "Staff" and campus == "Canterbury" and distance_km is not None and distance_km < 4.83 and not any([blue_badge, mobility_need, essential_business_user, friday_only]):
+            if applicant_type == "Staff" and campus == "Canterbury" and distance_miles is not None and distance_miles < 3 and not any([blue_badge, mobility_need, essential_business_user, friday_only]):
                 messagebox.showwarning("Distance warning", "This Canterbury staff application appears to be within 3 miles. It has still been saved for manual review.")
 
             data = {
@@ -382,7 +382,7 @@ class PermitApplicationForm(tk.Tk):
                 "secondary_vehicle_reg": normalise_reg(self.form_vars["secondary_vehicle_reg"].get().strip()),
                 "reason": self.form_vars["reason"].get().strip(),
                 "accessibility_needs": self.form_vars["accessibility_needs"].get().strip(),
-                "distance_km": distance_km,
+                "distance_miles": distance_miles,
                 "desired_car_park_id": parse_car_park_id(self.form_vars["desired_car_park"].get()),
                 "valid_from": ensure_date(self.form_vars["valid_from"].get(), "Valid from"),
                 "valid_to": ensure_date(self.form_vars["valid_to"].get(), "Valid to"),

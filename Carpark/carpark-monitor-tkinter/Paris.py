@@ -47,6 +47,7 @@ class ParisMixin:
             "ID",
             "Type",
             "Campus",
+            "Distance",
             "Name",
             "Reg 1",
             "Reg 2",
@@ -72,6 +73,7 @@ class ParisMixin:
             self.permits_tree.column(col, width=110, anchor="center")
 
         # Some columns need more space and look better left aligned
+        self.permits_tree.column("Distance", width=80, anchor="center")
         self.permits_tree.column("Name", width=160, anchor="w")
         self.permits_tree.column("Email", width=190, anchor="w")
         self.permits_tree.column("Car park", width=220, anchor="w")
