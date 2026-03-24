@@ -79,7 +79,7 @@ class CallumMixin:                                                      # Mixin 
 
     def show_dashboard(self):                                           # Sets up and displays the full admin dashboard after login
         self.title("CCCU Car Park Monitor - Admin Dashboard")           # Updates the window title bar
-        self.geometry("1680x980")                                       # Sets the window to a large default size
+        self.state('zoomed')                                            # Maximizes the window to full screen
         self.minsize(1320, 820)                                         # Prevents the window being resized smaller than this
         self.rowconfigure(1, weight=1)                                  # Allows the main content row to expand vertically
 
