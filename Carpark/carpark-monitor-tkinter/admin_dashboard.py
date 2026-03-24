@@ -2,18 +2,16 @@ import tkinter as tk
 from tkinter import ttk
 
 from Callum import CallumMixin
-from Kris import KrisMixin
-from Paris import ParisMixin
-#from Jenna import JennaMixin
 from Jack import JackMixin
+from Paris import ParisMixin
+from Jenna import JennaMixin
 
 
 class CarParkAdminDashboard(
     CallumMixin,
-    KrisMixin,
-    ParisMixin,
-    #JennaMixin,
     JackMixin,
+    ParisMixin,
+    JennaMixin,
     tk.Tk
 ):
     # Main app file.
