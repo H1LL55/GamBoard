@@ -879,10 +879,6 @@ class DatabaseManager:
                 "SELECT COUNT(*) FROM car_parks"
             ).fetchone()[0]
 
-            total_spaces = conn.execute(
-                "SELECT COALESCE(SUM(total_bays),0) FROM car_parks WHERE campus='Canterbury'"
-            ).fetchone()[0]
-
             pending_permits = conn.execute(
                 """
                 SELECT COUNT(*)
@@ -945,7 +941,6 @@ class DatabaseManager:
 
             return {
                 "car_parks": car_parks,
-                "total_spaces": total_spaces,
                 "pending_permits": pending_permits,
                 "approved_permits": approved_permits,
                 "issued_permits": issued_permits,

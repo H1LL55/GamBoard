@@ -8,24 +8,10 @@ from shared_db import (
     parse_date,
     today_str,
 )
-from shared_db import (
-    ensure_date,
-    normalise_reg,
-    parse_car_park_id,
-    today_str,
-)
-
-from shared_db import (
-    TEMP_PERMIT_OPTIONS,
-    ensure_date,
-    normalise_reg,
-    parse_date,
-    today_str,
-)
 
 
 class JennaMixin:
-    # Jack - work on this file
+    # Jenna - work on this file
     # Permit checker, penalties, and shared helper methods.
 
     def build_temp_permits_tab(self):
