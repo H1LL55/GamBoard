@@ -1,14 +1,9 @@
-# tkinter is Python's built-in GUI library.
-# We rename tkinter to "tk" because it is shorter to type and is the common convention.
 import tkinter as tk
-
-# ttk gives us the themed widgets such as nicer buttons, labels, comboboxes and treeviews.
-# messagebox is used for popup messages like warnings, errors and success messages.
 from tkinter import ttk, messagebox
 
 
-# These values and helper functions are imported from shared_db.py.
-# They are being reused here so this file does not need to hard-code them again.
+# These values and helper functions are imported from shared_db.py
+# They are being reused here so this file does not need to hard code them in again
 from shared_db import (
     COLLECTION_LOCATIONS,        # List of valid permit collection locations
     ISSUED_PERMIT_STATUSES,      # Status options for permits that have already been issued
@@ -19,32 +14,12 @@ from shared_db import (
     ensure_date,                 # Helper function that validates a date entered by the user
 )
 
-# This import is duplicated in your original code.
-# It does not change the behaviour, but it is unnecessary because the same names
-# have already been imported above.
-from shared_db import (
-    COLLECTION_LOCATIONS,
-    ISSUED_PERMIT_STATUSES,
-    PERMIT_APP_STATUSES,
-    PERMIT_KIND_OPTIONS,
-    as_yes_no,
-    default_expiry_str,
-    ensure_date,
-)
-
 
 class ParisMixin:
     # Paris - work on this file
-    # Permit applications tab and issued permits tab.
-    # This class is a "mixin", which means it is designed to be added into another class
-    # rather than used by itself.
+    # Permit applications tab and issued permits tab
 
     def build_permits_tab(self):
-        # This method builds the whole "permits" tab in the GUI.
-        # It creates:
-        # 1. A table showing permit applications
-        # 2. A review area for changing application status
-        # 3. An issue area for creating an issued permit from an approved application
 
         # Make column 0 in the permits tab expand when the window gets bigger
         self.permits_tab.columnconfigure(0, weight=1)
@@ -60,7 +35,7 @@ class ParisMixin:
         )
 
         # Puts the frame into the permits tab
-        # sticky="nsew" means it stretches in all directions
+        # sticky="nsew" means it stretches in all different directions
         table_frame.grid(row=0, column=0, sticky="nsew")
 
         # Make the inside of the frame expandable too.
@@ -83,107 +58,105 @@ class ParisMixin:
         )
 
         # Creates the Treeview widget
-        # This is the table that shows all permit applications.
+        # This table shows all the permit applications
         self.permits_tree = ttk.Treeview(
             table_frame,
-            columns=permit_columns,  # Use the headings listed above
+            columns=permit_columns,  # Uses the headings listed above
             show="headings",         # Only show the headings, not the hidden tree column
-            height=20                # Show roughly 20 rows high
+            height=20                # Show 20 rows high
         )
 
-        # Loop through each column name and set up the heading text
-        # and default width/alignment.
+        # Loops through each column name and set up the heading text and default width/alignment
         for col in permit_columns:
             self.permits_tree.heading(col, text=col)
             self.permits_tree.column(col, width=110, anchor="center")
 
-        # Some columns need more space and look better left-aligned.
+        # Some columns need more space and look better left aligned
         self.permits_tree.column("Name", width=160, anchor="w")
         self.permits_tree.column("Email", width=190, anchor="w")
         self.permits_tree.column("Car park", width=220, anchor="w")
 
-        # Place the table into the frame.
+        # Places the table into the frame
         self.permits_tree.grid(row=0, column=0, sticky="nsew")
 
-        # Create a vertical scrollbar for the permit applications table.
+        # Creates a vertical scrollbar for the permit applications table
         yscroll = ttk.Scrollbar(
             table_frame,
             orient="vertical",
             command=self.permits_tree.yview
         )
 
-        # Connect the table to the scrollbar so they move together.
+        # Connects the table to the scrollbar so they move together
         self.permits_tree.configure(yscrollcommand=yscroll.set)
 
-        # Put the scrollbar beside the table.
+        # Puts the scrollbar beside the table
         yscroll.grid(row=0, column=1, sticky="ns")
 
-        # Create a frame underneath the table for the review controls.
-        # This section lets the user update the application status,
-        # enter reviewer info, add notes, and view details.
+        # Creates a frame underneath the table for the review controls
+        # This lets the user update the application status,enter reviewer info, add notes, and view details
         review = ttk.Frame(table_frame)
         review.grid(row=1, column=0, sticky="ew", pady=(8, 0))
 
-        # Configure the columns in the review frame.
-        # The columns in {3, 5, 6} are made stretchable so text fields
-        # and some buttons can grow when the window size changes.
+        # Configures the columns in the review frame
+        # The columns in 3, 5, 6 are made stretchable so text fields
+        # and some buttons can grow when the window size changes
         for i in range(9):
             if i in {3, 5, 6}:
                 review.columnconfigure(i, weight=1)
             else:
                 review.columnconfigure(i, weight=0)
 
-        # Label for the status dropdown.
+        # Label for the status dropdown
         ttk.Label(review, text="Review status").grid(
             row=0, column=0, sticky="w"
         )
 
-        # StringVar stores the selected application status in memory.
-        # It starts with "Awaiting SMT Approval" as the default value.
-        self.permit_status_var = tk.StringVar(value="Awaiting SMT Approval")
+        # StringVar stores the selected application status in the memory
+        # It starts with "Awaiting Approval" as the default value
+        self.permit_status_var = tk.StringVar(value="Awaiting Approval")
 
-        # Combobox lets the user choose one of the valid application statuses.
+        # Combobox lets the user choose one of the valid application statuses
         ttk.Combobox(
             review,
             textvariable=self.permit_status_var,
             values=PERMIT_APP_STATUSES,
-            state="readonly",   # User can only select from the list, not type their own value
+            state="readonly",   # User can only select from the list, not type their own stuff
             width=22
         ).grid(row=0, column=1, sticky="w", padx=(8, 12))
 
-        # Label for the reviewer name input.
+        # Label for the reviewer names input
         ttk.Label(review, text="Reviewer").grid(row=0, column=2, sticky="w")
 
-        # This stores the reviewer name entered into the entry box.
+        # Stores the reviewers names entered into the entry box
         self.permit_reviewer_var = tk.StringVar()
 
-        # Entry box for the reviewer name.
+        # Entry box for the reviewer name
         ttk.Entry(
             review,
             textvariable=self.permit_reviewer_var,
             width=16
         ).grid(row=0, column=3, sticky="ew", padx=(8, 12))
 
-        # Label for review notes.
+        # Label for review notes
         ttk.Label(review, text="Notes").grid(row=0, column=4, sticky="w")
 
-        # StringVar to hold any review notes typed by the staff member.
+        # StringVar holds any review notes typed by the staff member
         self.permit_review_notes = tk.StringVar()
 
-        # Entry box for review notes.
+        # Entry box for review notes
         ttk.Entry(
             review,
             textvariable=self.permit_review_notes
         ).grid(row=0, column=5, sticky="ew", padx=(8, 12))
 
-        # Button to save the chosen review status for whichever application is selected.
+        # Button to save the chosen review status for whichever application is selected
         ttk.Button(
             review,
             text="Update selected",
             command=self.update_selected_permit_status
         ).grid(row=0, column=6, sticky="ew")
 
-        # Button to open a detailed view of the selected application.
+        # Button to open a detailed view of the selected application
         ttk.Button(
             review,
             text="View selected",
@@ -430,11 +403,11 @@ class ParisMixin:
             )
             return
 
-        # Ask the database for the full record of that application.
+        # Asks the database for the full record of that application
         record = self.db.get_permit_application(permit_id)
 
-        # Build a list of text lines that describe the application in detail.
-        # f-strings are used so values from the database record can be inserted into the text.
+        # Builds a list of text lines that describe the application in detail
+        # f-strings are used so values from the database record can be inserted into the text
         details = [
             f"Application #{record['id']}",
             f"Applicant: {record['full_name']} ({record['applicant_type']})",
@@ -489,22 +462,21 @@ class ParisMixin:
             f"Reviewer notes: {record['reviewer_notes'] or '-'}",
         ]
 
-        # Join the list into one block of text with a line break between each item,
-        # then show it in the popup window.
+        # Joins the list into one block of text with a line break between each item,
+        # then shows it in the popup window.
         self.show_text_window(
             f"Permit application #{record['id']}",
             "\n".join(details)
         )
 
     def build_issued_permits_tab(self):
-        # This method builds the second main tab:
-        # the tab that shows permits that have already been issued.
+        # This method builds the second main tab
 
-        # Make the tab stretch with the window.
+        # Make the tab stretch with the window
         self.issued_permits_tab.columnconfigure(0, weight=1)
         self.issued_permits_tab.rowconfigure(0, weight=1)
 
-        # Create the outer frame with a title.
+        # Create the outer frame with a title
         table_frame = ttk.LabelFrame(
             self.issued_permits_tab,
             text="Issued permits",
@@ -514,7 +486,7 @@ class ParisMixin:
         table_frame.columnconfigure(0, weight=1)
         table_frame.rowconfigure(0, weight=1)
 
-        # Define the columns for the issued permits table.
+        # Define the columns for the issued permits table
         columns = (
             "ID",
             "Permit No",
@@ -528,7 +500,7 @@ class ParisMixin:
             "Status"
         )
 
-        # Create the Treeview table for issued permits.
+        # Create the Treeview table for issued permits
         self.issued_permits_tree = ttk.Treeview(
             table_frame,
             columns=columns,
