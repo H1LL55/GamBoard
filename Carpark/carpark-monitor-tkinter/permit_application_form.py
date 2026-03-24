@@ -22,8 +22,8 @@ class PermitApplicationForm(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("CCCU Staff Permit Application Form")
-        self.geometry("980x900")
-        self.minsize(860, 760)
+        self.geometry("660x960")
+        self.minsize(660,700)
 
         self.db = DatabaseManager(DB_PATH)
         self.car_park_choices = self.db.car_park_options()
