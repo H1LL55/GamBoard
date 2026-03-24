@@ -120,9 +120,6 @@ class KrisMixin:
         self.refresh_dashboard()
         self.refresh_permits()
         self.refresh_issued_permits()
-        self.refresh_visitors()
-        self.refresh_reservations()
-        self.refresh_temp_permits()
         self.refresh_penalties()
 
     def refresh_dashboard(self):

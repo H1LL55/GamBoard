@@ -4,7 +4,7 @@ from tkinter import ttk
 from Callum import CallumMixin
 from Kris import KrisMixin
 from Paris import ParisMixin
-from Jenna import JennaMixin
+#from Jenna import JennaMixin
 from Jack import JackMixin
 
 
@@ -12,7 +12,7 @@ class CarParkAdminDashboard(
     CallumMixin,
     KrisMixin,
     ParisMixin,
-    JennaMixin,
+    #JennaMixin,
     JackMixin,
     tk.Tk
 ):

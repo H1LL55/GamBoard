@@ -124,26 +124,17 @@ class CallumMixin:                                                      # Mixin 
         self.dashboard_tab = ttk.Frame(self.notebook, padding=12)      # Frame for the overview/summary tab
         self.permits_tab = ttk.Frame(self.notebook, padding=12)        # Frame for reviewing pending permit applications
         self.issued_permits_tab = ttk.Frame(self.notebook, padding=12) # Frame for viewing active and historical permits
-        self.visitors_tab = ttk.Frame(self.notebook, padding=12)       # Frame for managing visitor bookings
-        self.reservations_tab = ttk.Frame(self.notebook, padding=12)   # Frame for managing space reservations
-        self.temp_permits_tab = ttk.Frame(self.notebook, padding=12)   # Frame for short-term and day permits
         self.checker_tab = ttk.Frame(self.notebook, padding=12)        # Frame for the patrol permit checking tool
         self.penalties_tab = ttk.Frame(self.notebook, padding=12)      # Frame for issuing and viewing penalty notices
 
         self.notebook.add(self.dashboard_tab, text="Dashboard")                     # Registers Dashboard tab
         self.notebook.add(self.permits_tab, text="Permit Applications")             # Registers Permit Applications tab
         self.notebook.add(self.issued_permits_tab, text="Issued Permits")           # Registers Issued Permits tab
-        self.notebook.add(self.visitors_tab, text="Visitor Bookings")               # Registers Visitor Bookings tab
-        self.notebook.add(self.reservations_tab, text="Reservations")               # Registers Reservations tab
-        self.notebook.add(self.temp_permits_tab, text="Temporary / Day Permits")    # Registers Temporary / Day Permits tab
         self.notebook.add(self.checker_tab, text="Permit Check")                    # Registers Permit Check tab
         self.notebook.add(self.penalties_tab, text="Penalty Notices")               # Registers Penalty Notices tab
 
         self.build_dashboard_tab()      # Populates the Dashboard tab with its widgets
         self.build_permits_tab()        # Populates the Permit Applications tab with its widgets
         self.build_issued_permits_tab() # Populates the Issued Permits tab with its widgets
-        self.build_visitors_tab()       # Populates the Visitor Bookings tab with its widgets
-        self.build_reservations_tab()   # Populates the Reservations tab with its widgets
-        self.build_temp_permits_tab()   # Populates the Temporary / Day Permits tab with its widgets
         self.build_checker_tab()        # Populates the Permit Check tab with its widgets
         self.build_penalties_tab()      # Populates the Penalty Notices tab with its widgets

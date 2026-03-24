@@ -9,23 +9,23 @@ DB_PATH = Path(__file__).with_name("carpark_monitor.db")
 
 # This is just the starter data for the car parks so the system has something to work with straight away.
 CAR_PARK_SEED = [
-    {"campus": "Canterbury", "name": "Verena Holmes Undercroft", "standard_bays": 12, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 10, "department_bays": 0, "total_bays": 25},
-    {"campus": "Canterbury", "name": "Black Car Park (Verena Holmes)", "standard_bays": 63, "visitor_bays": 2, "short_stay_bays": 0, "electric_charging": 10, "disabled_bays": 5, "contractor_bays": 9, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 89},
-    {"campus": "Canterbury", "name": "Vernon Place", "standard_bays": 7, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 8},
-    {"campus": "Canterbury", "name": "Red Car Park (North Holmes Road)", "standard_bays": 29, "visitor_bays": 4, "short_stay_bays": 2, "electric_charging": 2, "disabled_bays": 7, "contractor_bays": 0, "motorcycle_bays": 1, "department_bays": 8, "total_bays": 53},
-    {"campus": "Canterbury", "name": "Green Car Park (Governor's Hse)", "standard_bays": 32, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 33},
-    {"campus": "Canterbury", "name": "St Martins Priory", "standard_bays": 22, "visitor_bays": 8, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 5, "total_bays": 37},
-    {"campus": "Canterbury", "name": "Augustine House", "standard_bays": 5, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 2, "total_bays": 7},
-    {"campus": "Canterbury", "name": "St. George's Student Union", "standard_bays": 0, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 2},
-    {"campus": "Canterbury", "name": "Yellow Car Park (St. Gregory's) approx", "standard_bays": 41, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 41},
-    {"campus": "Canterbury", "name": "TOSH Visitors Car Park", "standard_bays": 0, "visitor_bays": 15, "short_stay_bays": 1, "electric_charging": 2, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 2, "total_bays": 21},
-    {"campus": "Canterbury", "name": "Mauve Car Park (TOSH)", "standard_bays": 9, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 9},
-    {"campus": "Canterbury", "name": "Grey Car Park (Prison)", "standard_bays": 44, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 6, "total_bays": 53},
-    {"campus": "Canterbury", "name": "Sports Centre", "standard_bays": 7, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 10},
-    {"campus": "Medway", "name": "Rowan Williams Court", "standard_bays": 121, "visitor_bays": 30, "short_stay_bays": 0, "electric_charging": 2, "disabled_bays": 4, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 4, "total_bays": 157},
-    {"campus": "Medway", "name": "Cathedral Court", "standard_bays": 88, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 1, "total_bays": 89},
-    {"campus": "Medway", "name": "North Road", "standard_bays": 15, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 15},
-    {"campus": "Tunbridge Wells", "name": "Salomons / Meadow Road (limited parking)", "standard_bays": 0, "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 2, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 2},
+    {"campus": "Canterbury", "name": "Verena Holmes Undercroft",                "standard_bays": 12,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 10, "department_bays": 0, "total_bays": 25},
+    {"campus": "Canterbury", "name": "Black Car Park (Verena Holmes)",          "standard_bays": 63,    "visitor_bays": 2, "short_stay_bays": 0, "electric_charging": 10, "disabled_bays": 5, "contractor_bays": 9, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 89},
+    {"campus": "Canterbury", "name": "Vernon Place",                            "standard_bays": 7,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 8},
+    {"campus": "Canterbury", "name": "Red Car Park (North Holmes Road)",        "standard_bays": 29,    "visitor_bays": 4, "short_stay_bays": 2, "electric_charging": 2, "disabled_bays": 7, "contractor_bays": 0, "motorcycle_bays": 1, "department_bays": 8, "total_bays": 53},
+    {"campus": "Canterbury", "name": "Green Car Park (Governor's Hse)",         "standard_bays": 32,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 33},
+    {"campus": "Canterbury", "name": "St Martins Priory",                       "standard_bays": 22,    "visitor_bays": 8, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 5, "total_bays": 37},
+    {"campus": "Canterbury", "name": "Augustine House",                         "standard_bays": 5,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 2, "total_bays": 7},
+    {"campus": "Canterbury", "name": "St. George's Student Union",              "standard_bays": 0,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 2, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 2},
+    {"campus": "Canterbury", "name": "Yellow Car Park (St. Gregory's) approx",  "standard_bays": 41,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 41},
+    {"campus": "Canterbury", "name": "TOSH Visitors Car Park",                  "standard_bays": 0,     "visitor_bays": 15, "short_stay_bays": 1, "electric_charging": 2, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 2, "total_bays": 21},
+    {"campus": "Canterbury", "name": "Mauve Car Park (TOSH)",                   "standard_bays": 9,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 9},
+    {"campus": "Canterbury", "name": "Grey Car Park (Prison)",                  "standard_bays": 44,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 6, "total_bays": 53},
+    {"campus": "Canterbury", "name": "Sports Centre",                           "standard_bays": 7,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 3, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 10},
+    {"campus": "Medway", "name": "Rowan Williams Court",                        "standard_bays": 121,   "visitor_bays": 30, "short_stay_bays": 0, "electric_charging": 2, "disabled_bays": 4, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 4, "total_bays": 157},
+    {"campus": "Medway", "name": "Cathedral Court",                             "standard_bays": 88,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 1, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 1, "total_bays": 89},
+    {"campus": "Medway", "name": "North Road",                                  "standard_bays": 15,    "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 0, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 15},
+    {"campus": "Tunbridge Wells", "name": "Salomons / Meadow Road",             "standard_bays": 0,     "visitor_bays": 0, "short_stay_bays": 0, "electric_charging": 2, "disabled_bays": 0, "contractor_bays": 0, "motorcycle_bays": 0, "department_bays": 0, "total_bays": 2},
 ]
 
 
@@ -42,11 +42,9 @@ PERMIT_APP_STATUSES = [
 ]
 ISSUED_PERMIT_STATUSES = [
     "Ready for Collection",
-    "Collected",
     "Active",
-    "Cancelled",
-    "Returned",
-    "Lost/Replacement Ordered",
+    "Inactive",
+    "Lost",
 ]
 PERMIT_KIND_OPTIONS = [
     "Standard",
