@@ -24,8 +24,8 @@ class CarParkAdminDashboard(
 
         # Window setup
         self.title("CCCU Car Park Monitor - Admin Login")
-        self.geometry("420x260")
-        self.minsize(420, 260)
+        self.geometry("420x300")
+        self.minsize(420, 300)
 
         # Hard-coded admin login for now
         self.admin_username = "admin"
