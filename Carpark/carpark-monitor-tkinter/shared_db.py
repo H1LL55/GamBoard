@@ -76,9 +76,7 @@ COLLECTION_LOCATIONS = [
 ]
 
 
-# ---------------------------
 # Helper functions
-# ---------------------------
 
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -148,10 +146,8 @@ def default_collection_for_campus(campus: str) -> str:
     return mapping.get(campus or "", "Old Sessions House reception")
 
 
-# ---------------------------
-# Database manager
-# ---------------------------
 
+# Database manager
 class DatabaseManager:
     def __init__(self, db_path: Path):
         self.db_path = db_path
@@ -386,9 +382,8 @@ class DatabaseManager:
                 ),
             )
 
-    # ---------------------------
+
     # Shared lookups
-    # ---------------------------
 
     def fetch_car_parks(self):
         with self.connect() as conn:
@@ -407,9 +402,7 @@ class DatabaseManager:
 
         return options
 
-    # ---------------------------
     # Permit applications
-    # ---------------------------
 
     def add_permit_application(self, data):
         with self.connect() as conn:
@@ -539,9 +532,7 @@ class DatabaseManager:
                 (permit_id,)
             )
 
-    # ---------------------------
     # Issued permits
-    # ---------------------------
 
     def next_permit_number(self, conn):
         count = conn.execute("SELECT COUNT(*) FROM issued_permits").fetchone()[0]
@@ -688,9 +679,7 @@ class DatabaseManager:
                 (permit_id,)
             )
 
-    # ---------------------------
     # Visitors
-    # ---------------------------
 
     def add_visitor_booking(self, data):
         with self.connect() as conn:
@@ -732,9 +721,7 @@ class DatabaseManager:
             ).fetchall()
             return rows
 
-    # ---------------------------
     # Reservations
-    # ---------------------------
 
     def add_reservation(self, data):
         with self.connect() as conn:
@@ -775,9 +762,7 @@ class DatabaseManager:
             ).fetchall()
             return rows
 
-    # ---------------------------
     # Temporary permits
-    # ---------------------------
 
     def add_temporary_permit(self, data):
         with self.connect() as conn:
@@ -820,9 +805,7 @@ class DatabaseManager:
                 (permit_id,)
             )
 
-    # ---------------------------
     # Penalties
-    # ---------------------------
 
     def add_penalty(self, data):
         with self.connect() as conn:
@@ -867,9 +850,7 @@ class DatabaseManager:
                 (penalty_id,)
             )
 
-    # ---------------------------
     # Dashboard numbers
-    # ---------------------------
 
     def dashboard_counts(self):
         with self.connect() as conn:
@@ -951,9 +932,7 @@ class DatabaseManager:
                 "penalties": penalties,
             }
 
-    # ---------------------------
     # Vehicle check
-    # ---------------------------
 
     def check_vehicle(self, vehicle_reg, check_date):
         with self.connect() as conn:

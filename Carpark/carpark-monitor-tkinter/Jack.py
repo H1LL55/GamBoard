@@ -95,7 +95,7 @@ class JackMixin:
         yscroll.grid(row=0, column=1, sticky="ns")
 
         notes_text = (
-            "• Applicants now submit new permit requests through the separate "
+            "• Applicants submit new permit requests through the separate "
             "application form file.\n\n"
             "• This dashboard is staff/admin side only.\n\n"
             "• Permit applications saved in the other file appear here because "

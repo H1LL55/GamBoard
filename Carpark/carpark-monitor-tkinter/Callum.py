@@ -6,7 +6,7 @@ from shared_db import DB_PATH, DatabaseManager                         # Import 
 
 class CallumMixin:                                                      # Mixin class to be combined with the main app class
     # Callum - work on this file
-    # Login screen, dashboard startup, header and notebook tabs.
+    # Login screen, dashboard startup, header and notebook tabs
 
     def build_login_screen(self):                                       # Builds the initial login UI before dashboard is shown
         self.login_frame = ttk.Frame(self, padding=24)                  # Creates outer frame with padding to hold all login widgets
@@ -127,14 +127,14 @@ class CallumMixin:                                                      # Mixin 
         self.checker_tab = ttk.Frame(self.notebook, padding=12)        # Frame for the patrol permit checking tool
         self.penalties_tab = ttk.Frame(self.notebook, padding=12)      # Frame for issuing and viewing penalty notices
 
-        self.notebook.add(self.dashboard_tab, text="Dashboard")                     # Registers Dashboard tab
-        self.notebook.add(self.permits_tab, text="Permit Applications")             # Registers Permit Applications tab
-        self.notebook.add(self.issued_permits_tab, text="Issued Permits")           # Registers Issued Permits tab
-        self.notebook.add(self.checker_tab, text="Permit Check")                    # Registers Permit Check tab
-        self.notebook.add(self.penalties_tab, text="Penalty Notices")               # Registers Penalty Notices tab
+        self.notebook.add(self.dashboard_tab, text="Dashboard")                     # Registers the Dashboard tab
+        self.notebook.add(self.permits_tab, text="Permit Applications")             # Registers the Permit Applications tab
+        self.notebook.add(self.issued_permits_tab, text="Issued Permits")           # Registers the Issued Permits tab
+        self.notebook.add(self.checker_tab, text="Permit Check")                    # Registers the Permit Check tab
+        self.notebook.add(self.penalties_tab, text="Penalty Notices")               # Registers the Penalty Notices tab
 
-        self.build_dashboard_tab()      # Populates the Dashboard tab with its widgets
-        self.build_permits_tab()        # Populates the Permit Applications tab with its widgets
-        self.build_issued_permits_tab() # Populates the Issued Permits tab with its widgets
-        self.build_checker_tab()        # Populates the Permit Check tab with its widgets
-        self.build_penalties_tab()      # Populates the Penalty Notices tab with its widgets
+        self.build_dashboard_tab()      # adds the Dashboard tab with its widgets
+        self.build_permits_tab()        # adds the Permit Applications tab with its widgets
+        self.build_issued_permits_tab() # adds the Issued Permits tab with its widgets
+        self.build_checker_tab()        # adds the Permit Check tab with its widgets
+        self.build_penalties_tab()      # adds the Penalty Notices tab with its widgets
