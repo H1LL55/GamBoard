@@ -2,16 +2,16 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 
 
-# These values and helper functions are imported from shared_db.py
+# These values and functions are imported from shared_db.py
 # They are being reused here so this file does not need to hard code them in again
 from shared_db import (
     COLLECTION_LOCATIONS,        # List of valid permit collection locations
     ISSUED_PERMIT_STATUSES,      # Status options for permits that have already been issued
     PERMIT_APP_STATUSES,         # Status options for permit applications under review
     PERMIT_KIND_OPTIONS,         # Types of permit that can be issued
-    as_yes_no,                   # Helper function that converts True/False into Yes/No
-    default_expiry_str,          # Helper function that returns a default expiry date as text
-    ensure_date,                 # Helper function that validates a date entered by the user
+    as_yes_no,                   # function that converts True/False into Yes/No
+    default_expiry_str,          # function that returns a default expiry date as text
+    ensure_date,                 # function that validates a date entered by the user
 )
 
 
