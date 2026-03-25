@@ -113,8 +113,8 @@ class ParisMixin:
             row=0, column=0, sticky="w"
         )
 
-        # StringVar stores the selected application status in the memory
-        # It starts with "Awaiting Approval" as the default value
+        # StringVar stores the selected application in the memory
+        # It starts with "Awaiting Approval" as the default 
         self.permit_status_var = tk.StringVar(value="Awaiting Approval")
 
         # Combobox lets the user choose one of the valid application statuses
@@ -281,11 +281,7 @@ class ParisMixin:
             )
 
             # Update the selected permit application in the database.
-            # It saves:
-            # - the application ID
-            # - the chosen status
-            # - the reviewer name
-            # - any notes typed into the notes field
+            # It saves the application ID, the chosen status, the reviewer name, any notes typed into the notes field
             self.db.update_permit_status(
                 permit_id,
                 self.permit_status_var.get(),
@@ -293,24 +289,24 @@ class ParisMixin:
                 self.permit_review_notes.get().strip()
             )
 
-            # Refresh all tables so the updated data appears on screen immediately.
+            # Refreshes all of the tables so the data appears on screen
             self.refresh_all()
 
-            # Tell the user the action worked.
+            # Tells the user if the action was successful
             messagebox.showinfo("Updated", "Permit status updated.")
 
         except Exception as exc:
-            # If anything goes wrong, show the error in a popup.
+            # If anything goes wrong, show the error 
             messagebox.showerror("Could not update", str(exc))
 
     def delete_selected_permit(self):
-        # This method deletes the selected permit application from the database.
+        # This deletes the selected permit application from the database
 
         try:
-            # Get the selected application ID from the applications table.
+            # Get the application ID from the applications table
             permit_id = self.selected_tree_id(self.permits_tree)
 
-            # If no row is selected, warn the user and stop.
+            # If no row is selected, warn the user and stop
             if not permit_id:
                 messagebox.showwarning(
                     "No selection",
@@ -318,35 +314,34 @@ class ParisMixin:
                 )
                 return
 
-            # Ask for confirmation before deleting (safety measure).
+            # Ask for confirmation before deleting
             if not messagebox.askyesno(
                 "Confirm delete",
                 f"Are you sure you want to delete permit application {permit_id}?"
             ):
                 return
 
-            # Call the database method to delete the permit application.
+            # Call the database method to delete the permit application
             self.db.delete_permit_application(permit_id)
 
-            # Refresh all tables so the deleted data disappears from screen.
+            # Refresh all of the tables so the deleted data disappears off screen
             self.refresh_all()
 
-            # Tell the user the action worked.
+            # Tell the user the action was successful
             messagebox.showinfo("Deleted", "Permit application deleted.")
 
         except Exception as exc:
-            # If anything goes wrong, show the error in a popup.
+            # If anything goes wrong, show the error
             messagebox.showerror("Could not delete", str(exc))
 
     def issue_selected_permit(self):
-        # This method turns a selected application into an issued permit.
-        # It is likely meant to be used once an application has been approved.
+        # This method turns a selected application into an issued permit
 
         try:
-            # Get the selected application ID from the applications table.
+            # Get the selected application ID from the applications table
             permit_id = self.selected_tree_id(self.permits_tree)
 
-            # If no row is selected, warn the user and stop.
+            # If no row is selected, warn the user and stop
             if not permit_id:
                 messagebox.showwarning(
                     "No selection",
@@ -354,68 +349,63 @@ class ParisMixin:
                 )
                 return
 
-            # Validate the expiry date entered in the issue section.
-            # allow_blank=False means the expiry date must be filled in.
+            # Checks the expiry date entered in the issue section
+            # 'allow_blank=False' means the expiry date must be filled in
             expiry = ensure_date(
                 self.issue_expiry_var.get(),
                 "Issue expiry",
                 allow_blank=False
             )
 
-            # Call the database method that creates the issued permit
-            # using the selected application as the source.
+            # Calls the database method that creates the issued permit
+            # using the selected application as the source
             self.db.issue_permit_from_application(
                 permit_id,
-                self.issue_permit_kind_var.get().strip(),   # Permit type, e.g. Standard
-                self.issue_scope_var.get().strip(),         # Scope entered by staff
+                self.issue_permit_kind_var.get().strip(),   # Permit type
+                self.issue_scope_var.get().strip(),         # Scope entered bythe staff
                 expiry,                                     # Validated expiry date
                 self.issue_collection_var.get().strip(),    # Collection location
-                self.permit_review_notes.get().strip(),     # Optional notes
+                self.permit_review_notes.get().strip(),     # notes
             )
 
-            # Reload everything so the UI reflects the new issued permit.
+            # Reloads everything so the UI shows the new issued permit
             self.refresh_all()
 
-            # Let the user know the permit was created successfully.
+            # Lets the user know the permit was created
             messagebox.showinfo(
                 "Issued",
                 "Permit created and marked ready for collection."
             )
 
         except Exception as exc:
-            # Show any error that happens during issue creation.
+            # Shows any errors that happens during issue creation
             messagebox.showerror("Could not issue", str(exc))
 
     def show_text_window(self, title, text):
-        # This is a reusable helper method.
-        # It opens a new popup window and displays a large block of text inside it.
-        # It is used for showing full permit details.
 
-        # Create a new top-level window.
-        # This is a separate popup window, not a whole new app.
+        # Create a new top level window
         top = tk.Toplevel(self)
 
-        # Set the title shown in the popup's title bar.
+        # Set the title shown in the popup's title bar
         top.title(title)
 
-        # Set the size of the popup window.
+        # Set the size of the window
         top.geometry("760x640")
 
-        # Make this popup behave as a child of the main window.
-        # It stays linked to the main application.
+        # Makes this popup behave as a child of the main window
         top.transient(self)
 
-        # Create a frame inside the popup to give padding around the content.
+        # Creates a frame inside the popup to give padding around the content
         frame = ttk.Frame(top, padding=12)
         frame.pack(fill="both", expand=True)
 
-        # Create a multi-line text box.
-        # wrap="word" means lines wrap at whole words rather than splitting words.
-        # Consolas is used for a neat, readable fixed-width font.
+        # Create a multi line text box
+        # 'wrap="word"' means lines wrap at whole words rather than splitting words
+        # Consolas is used for neat and readable font
         text_box = tk.Text(frame, wrap="word", font=("Consolas", 10))
         text_box.pack(side="left", fill="both", expand=True)
 
-        # Add a vertical scrollbar to the text box.
+        # Adds a vertical scrollbar to the text box
         scroll = ttk.Scrollbar(
             frame,
             orient="vertical",
@@ -423,23 +413,23 @@ class ParisMixin:
         )
         scroll.pack(side="right", fill="y")
 
-        # Link the text box and the scrollbar together.
+        # Join the text box and the scrollbar together
         text_box.configure(yscrollcommand=scroll.set)
 
-        # Insert the provided text into the text box starting at line 1, character 0.
+        # Insert the provided text into the text box starting at line 1, character 0
         text_box.insert("1.0", text)
 
-        # Make the text box read-only so the user cannot edit the details.
+        # Make the text box read only so the user cant edit it
         text_box.configure(state="disabled")
 
     def show_selected_permit_details(self):
         # This method shows full details of the currently selected permit application
-        # in a popup text window.
+        
 
-        # Get the selected permit application ID from the applications table.
+        # Get the selected permit application ID from the applications table
         permit_id = self.selected_tree_id(self.permits_tree)
 
-        # If no application is selected, warn the user and stop.
+        # If no application is selected, warn the user and stop
         if not permit_id:
             messagebox.showwarning(
                 "No selection",
@@ -552,50 +542,50 @@ class ParisMixin:
             height=22
         )
 
-        # Set up each column heading and default appearance.
+        # Sets up each column heading and default appearance
         for col in columns:
             self.issued_permits_tree.heading(col, text=col)
             self.issued_permits_tree.column(col, width=120, anchor="center")
 
-        # Make some columns wider and left-aligned for readability.
+        # Make some columns wider and left aligned for better readability
         self.issued_permits_tree.column("Holder", width=170, anchor="w")
         self.issued_permits_tree.column("Permit No", width=150, anchor="w")
         self.issued_permits_tree.column("Scope", width=150, anchor="w")
 
-        # Place the table on screen.
+        # Place the table on screen
         self.issued_permits_tree.grid(row=0, column=0, sticky="nsew")
 
-        # Create the vertical scrollbar for the issued permits table.
+        # Creates the vertical scrollbar for the issued permits table
         yscroll = ttk.Scrollbar(
             table_frame,
             orient="vertical",
             command=self.issued_permits_tree.yview
         )
 
-        # Link the scrollbar to the table.
+        # Links the scrollbar to the table
         self.issued_permits_tree.configure(yscrollcommand=yscroll.set)
         yscroll.grid(row=0, column=1, sticky="ns")
 
-        # Create a controls section under the table.
-        # This area allows updates to status, notes, replacement fee and vehicle details.
+        # Createa a controls section under the table
+        # This area allows updates to status, notes, replacement fee and vehicle details
         controls = ttk.Frame(table_frame)
         controls.grid(row=1, column=0, sticky="ew", pady=(8, 0))
 
-        # Configure column expansion for the controls area.
+        # Configures column expansion for the controls area
         for i in range(11):
             if i in {1, 3, 5}:
                 controls.columnconfigure(i, weight=1)
             else:
                 controls.columnconfigure(i, weight=0)
 
-        # Label for status dropdown.
+        # Label for status dropdown
         ttk.Label(controls, text="Status").grid(row=0, column=0, sticky="w")
 
-        # Store the selected issued-permit status.
-        # Default starts as "Collected".
+        # Stores the selected issued-permit status
+        # Default starts as "Collected"
         self.issued_status_var = tk.StringVar(value="Collected")
 
-        # Dropdown of valid issued permit statuses.
+        # Dropdown of the valid issued permit statuses
         ttk.Combobox(
             controls,
             textvariable=self.issued_status_var,
@@ -604,13 +594,13 @@ class ParisMixin:
             width=22
         ).grid(row=0, column=1, sticky="ew", padx=(8, 12))
 
-        # Label for notes field.
+        # Label for notes field
         ttk.Label(controls, text="Notes").grid(row=0, column=2, sticky="w")
 
-        # Holds notes about the issued permit.
+        # Holds notes about the issued permit
         self.issued_notes_var = tk.StringVar()
 
-        # Entry for notes.
+        # Entry for notes
         ttk.Entry(
             controls,
             textvariable=self.issued_notes_var
@@ -621,8 +611,8 @@ class ParisMixin:
             row=0, column=4, sticky="w"
         )
 
-        # Stores the replacement fee as text first.
-        # It starts at "0".
+        # Stores the replacement fee as text first
+        # It starts at "0"
         self.replacement_fee_var = tk.StringVar(value="0")
 
         # Entry for replacement fee.
@@ -632,49 +622,49 @@ class ParisMixin:
             width=8
         ).grid(row=0, column=5, sticky="ew", padx=(8, 12))
 
-        # Button to update the selected issued permit record.
+        # Button to update the selected issued permit record
         ttk.Button(
             controls,
             text="Update selected",
             command=self.update_selected_issued_permit
         ).grid(row=0, column=6, sticky="ew")
 
-        # Button to view the selected issued permit in detail.
+        # Button to view the selected issued permit in detail
         ttk.Button(
             controls,
             text="View selected",
             command=self.show_selected_issued_permit
         ).grid(row=0, column=7, sticky="ew", padx=(8, 12))
 
-        # Label for new primary vehicle registration.
+        # Label for the new primary vehicle registration
         ttk.Label(controls, text="New reg 1").grid(
             row=1, column=0, sticky="w", pady=(8, 0)
         )
 
-        # Variable holding the new primary registration.
+        # the variable holding the new primary registration
         self.new_reg1_var = tk.StringVar()
 
-        # Entry for the new primary registration.
+        # Entry for the new primary registration
         ttk.Entry(
             controls,
             textvariable=self.new_reg1_var
         ).grid(row=1, column=1, sticky="ew", padx=(8, 12), pady=(8, 0))
 
-        # Label for new secondary vehicle registration.
+        # Label for new secondary vehicle registration
         ttk.Label(controls, text="New reg 2").grid(
             row=1, column=2, sticky="w", pady=(8, 0)
         )
 
-        # Variable holding the new secondary registration.
+        # Variable holding the new secondary registration
         self.new_reg2_var = tk.StringVar()
 
-        # Entry for the new secondary registration.
+        # Entry for the new secondary registration
         ttk.Entry(
             controls,
             textvariable=self.new_reg2_var
         ).grid(row=1, column=3, sticky="ew", padx=(8, 12), pady=(8, 0))
 
-        # Button to update the vehicle registration(s) for the selected issued permit.
+        # Button to update the vehicle registrations for the selected issued permit
         ttk.Button(
             controls,
             text="Update vehicle details",
@@ -687,14 +677,14 @@ class ParisMixin:
             pady=(8, 0)
         )
 
-        # Button to reload the issued permits table.
+        # Button to reload the issued permits table
         ttk.Button(
             controls,
             text="Refresh",
             command=self.refresh_issued_permits
         ).grid(row=1, column=6, sticky="ew", pady=(8, 0))
 
-        # Button to delete the selected issued permit.
+        # Button to delete the selected issued permit
         ttk.Button(
             controls,
             text="Delete selected",
@@ -702,14 +692,13 @@ class ParisMixin:
         ).grid(row=1, column=7, sticky="ew", padx=(8, 0), pady=(8, 0))
 
     def update_selected_issued_permit(self):
-        # This method updates the selected issued permit record,
-        # such as its status, notes and replacement fee.
+        # This method updates the selected issued permit record, such as its status, notes and replacement fee
 
         try:
-            # Get the selected issued permit ID from the table.
+            # Gets the selected issued permit ID from the table
             permit_id = self.selected_tree_id(self.issued_permits_tree)
 
-            # If nothing is selected, warn the user and stop.
+            # If nothing is selected, warn the user and stop
             if not permit_id:
                 messagebox.showwarning(
                     "No selection",
@@ -717,9 +706,7 @@ class ParisMixin:
                 )
                 return
 
-            # Update the issued permit in the database.
-            # The replacement fee is converted from text into a float.
-            # If the box is left blank, it becomes "0".
+            # Update the issued permit in the database
             self.db.update_issued_permit(
                 permit_id,
                 self.issued_status_var.get(),
@@ -727,24 +714,24 @@ class ParisMixin:
                 float(self.replacement_fee_var.get().strip() or "0"),
             )
 
-            # Refresh all GUI data after the update.
+            # Refreshes all GUI data after the update
             self.refresh_all()
 
-            # Show success message.
+            # Shows success message
             messagebox.showinfo("Updated", "Issued permit updated.")
 
         except Exception as exc:
-            # Show any error that occurs.
+            # Shows any error that occurs
             messagebox.showerror("Could not update", str(exc))
 
     def update_selected_issued_permit_regs(self):
-        # This method updates the vehicle registration detailsfor the selected issued permit.
+        # This method updates the vehicle registration detailsfor the selected issued permit
 
         try:
-            # Get the selected issued permit ID.
+            # Gets the selected issued permit ID
             permit_id = self.selected_tree_id(self.issued_permits_tree)
 
-            # If no permit is selected, warn the user and stop.
+            # If no permit is selected, warn the user and stop
             if not permit_id:
                 messagebox.showwarning(
                     "No selection",
@@ -752,16 +739,14 @@ class ParisMixin:
                 )
                 return
 
-            # Update the primary and secondary registration in the database.
-            # The first registration is required.
-            # The second one can be blank.
+            # Updates the primary and secondary registration in the database
             self.db.update_issued_permit_regs(
                 permit_id,
                 self.require(self.new_reg1_var.get(), "New reg 1"),
                 self.new_reg2_var.get().strip(),
             )
 
-            # Refresh the UI to show the new registration data.
+            # Refresh the UI to show the new registration data
             self.refresh_all()
 
             # Clears the entry boxes after a successful update
@@ -777,7 +762,7 @@ class ParisMixin:
 
     def show_selected_issued_permit(self):
         # This method displays all details for the selected issued permit
-        # in a popup window.
+        # in a popup window
 
         # Get the selected issued permit ID.
         permit_id = self.selected_tree_id(self.issued_permits_tree)
@@ -819,13 +804,13 @@ class ParisMixin:
         )
 
     def delete_selected_issued_permit(self):
-        # This method deletes the selected issued permit from the database.
+        # This method deletes the selected issued permit from the database
 
         try:
-            # Get the selected issued permit ID from the table.
+            # Gets the selected issued permit ID from the table
             permit_id = self.selected_tree_id(self.issued_permits_tree)
 
-            # If no row is selected, warn the user and stop.
+            # If no row is selected, warn the user and stop
             if not permit_id:
                 messagebox.showwarning(
                     "No selection",
@@ -833,22 +818,22 @@ class ParisMixin:
                 )
                 return
 
-            # Ask for confirmation before deleting (safety measure).
+            # Asks for confirmation before deleting
             if not messagebox.askyesno(
                 "Confirm delete",
                 f"Are you sure you want to delete issued permit {permit_id}?"
             ):
                 return
 
-            # Call the database method to delete the issued permit.
+            # Calls the database method to delete the issued permit
             self.db.delete_issued_permit(permit_id)
 
-            # Refresh all tables so the deleted data disappears from screen.
+            # Refreshes all tables so the deleted data disappears from screen.
             self.refresh_all()
 
-            # Tell the user the action worked.
+            # Tells the user the action worked
             messagebox.showinfo("Deleted", "Issued permit deleted.")
 
         except Exception as exc:
-            # If anything goes wrong, show the error in a popup.
+            # If anything goes wrong, show the error in a popup
             messagebox.showerror("Could not delete", str(exc))
