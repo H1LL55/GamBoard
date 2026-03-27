@@ -3,7 +3,6 @@ from tkinter import ttk, messagebox
 
 
 # These values and functions are imported from shared_db.py
-# They are being reused here so this file does not need to hard code them in again
 from shared_db import (
     COLLECTION_LOCATIONS,        # List of valid permit collection locations
     ISSUED_PERMIT_STATUSES,      # Status options for permits that have already been issued

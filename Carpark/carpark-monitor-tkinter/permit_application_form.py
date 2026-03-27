@@ -17,8 +17,7 @@ from shared_db import (
 
 
 class PermitApplicationForm(tk.Tk):
-    # This file is the applicant side only.
-    # The idea is people fill the form in here, and admin staff review it in the dashboard file.
+    # people fill the form in here and the admin staff review it in the dashboard file
     def __init__(self):
         super().__init__()
         self.title("CCCU Staff Permit Application Form")
@@ -219,9 +218,7 @@ class PermitApplicationForm(tk.Tk):
         self.form_vars["campus"].trace_add("write", self.on_campus_changed)
         self.update_submit_state()
 
-    # ------------------------------
-    # Small form helpers
-    # ------------------------------
+    # Small  helpers
     def build_form_field(self, parent, label, row, variable, widget="entry", values=None):
         ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", pady=4, padx=(0, 8))
         if widget == "combo":
@@ -330,9 +327,7 @@ class PermitApplicationForm(tk.Tk):
         campus = self.form_vars["campus"].get().strip()
         self.form_vars["collection_location"].set(default_collection_for_campus(campus))
 
-    # ------------------------------
     # Save logic
-    # ------------------------------
     def save_application(self):
         try:
             if not self.accept_terms_var.get():
