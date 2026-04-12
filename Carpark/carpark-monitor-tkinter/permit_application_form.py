@@ -21,7 +21,7 @@ class PermitApplicationForm(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("CCCU Staff Permit Application Form")
-        self.geometry("660x960")
+        self.geometry("800x960")
         self.minsize(660,700)
 
         self.db = DatabaseManager(DB_PATH)
@@ -50,7 +50,7 @@ class PermitApplicationForm(tk.Tk):
         ttk.Label(header, text="CCCU Staff Parking Permit Application", font=("Segoe UI", 20, "bold")).grid(row=0, column=0, sticky="w")
         ttk.Label(
             header,
-            text="Use this form to submit a new permit request. Once saved, it will appear in the admin dashboard.",
+            text="Use this form to submit a new permit request. It will appear in the admin dashboard.",
             font=("Segoe UI", 10),
         ).grid(row=1, column=0, sticky="w", pady=(4, 0))
 
