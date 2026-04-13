@@ -11,7 +11,6 @@ from shared_db import (
 
 
 class JennaMixin:
-    # Jenna - work on this file
     # Permit checker, penalties, and shared helper methods.
 
     def build_temp_permits_tab(self):
@@ -549,6 +548,26 @@ class JennaMixin:
         except Exception as exc:
             messagebox.showerror("Could not save", str(exc))
 
+    def logout(self):
+        if not messagebox.askyesno("Logout", "Are you sure you want to log out?"):
+            return
+
+        self.current_user = None
+
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        self.state('normal')
+        self.geometry("420x300")
+        self.minsize(420, 300)
+        self.title("CCCU Car Park Monitor - Admin Login")
+
+        self.login_username_var.set("")
+        self.login_password_var.set("")
+
+        self.build_login_screen()
+        self.bind("<Return>", self.try_login)
+
     def delete_selected_penalty(self):
         # This method deletes the selected penalty notice from the database.
 
@@ -677,3 +696,81 @@ class JennaMixin:
             # If ID is gone, try to select by index
             tree.selection_set(new_item_ids[selected_index][0])
             tree.focus(new_item_ids[selected_index][0])
+
+    def build_users_tab(self):
+        self.users_tab.columnconfigure(0, weight=1)
+        self.users_tab.rowconfigure(1, weight=1)
+
+        # --- Add user form at the top ---
+        form = ttk.LabelFrame(self.users_tab, text="Add new admin account", padding=12)
+        form.grid(row=0, column=0, sticky="ew", pady=(0, 12))
+
+        ttk.Label(form, text="Username").grid(row=0, column=0, sticky="w", padx=(0, 8))
+        self.new_user_var = tk.StringVar()
+        ttk.Entry(form, textvariable=self.new_user_var, width=24).grid(row=0, column=1, sticky="w", padx=(0, 20))
+
+        ttk.Label(form, text="Password").grid(row=0, column=2, sticky="w", padx=(0, 8))
+        self.new_pass_var = tk.StringVar()
+        ttk.Entry(form, textvariable=self.new_pass_var, show="*", width=24).grid(row=0, column=3, sticky="w", padx=(0, 20))
+
+        ttk.Button(form, text="Add user", command=self.add_user).grid(row=0, column=4, sticky="w")
+
+        # --- Users table ---
+        table_frame = ttk.LabelFrame(self.users_tab, text="Existing accounts", padding=8)
+        table_frame.grid(row=1, column=0, sticky="nsew")
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
+
+        columns = ("ID", "Username", "Created")
+        self.users_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=15)
+        for col in columns:
+            self.users_tree.heading(col, text=col)
+            self.users_tree.column(col, width=180, anchor="center")
+        self.users_tree.column("Username", width=240, anchor="w")
+        self.users_tree.grid(row=0, column=0, sticky="nsew")
+
+        yscroll = ttk.Scrollbar(table_frame, orient="vertical", command=self.users_tree.yview)
+        self.users_tree.configure(yscrollcommand=yscroll.set)
+        yscroll.grid(row=0, column=1, sticky="ns")
+
+        ttk.Button(
+            table_frame, text="Delete selected user", command=self.delete_selected_user
+        ).grid(row=1, column=0, sticky="e", pady=(8, 0))
+
+    def refresh_users(self):
+        if hasattr(self, 'users_tree'):
+            self.replace_tree_data(self.users_tree, self.db.list_users())
+
+    def add_user(self):
+        username = self.new_user_var.get().strip()
+        password = self.new_pass_var.get()
+
+        if not username:
+            messagebox.showwarning("Missing field", "Please enter a username.")
+            return
+        if len(password) < 6:
+            messagebox.showwarning("Weak password", "Password must be at least 6 characters.")
+            return
+
+        try:
+            self.db.add_user(username, password)
+            self.new_user_var.set("")
+            self.new_pass_var.set("")
+            self.refresh_users()
+            messagebox.showinfo("Done", f"User '{username}' created successfully.")
+        except Exception as exc:
+            messagebox.showerror("Could not create user", str(exc))
+
+    def delete_selected_user(self):
+        user_id = self.selected_tree_id(self.users_tree)
+        if not user_id:
+            messagebox.showwarning("No selection", "Please select a user to delete.")
+            return
+        if not messagebox.askyesno("Confirm", f"Delete user ID {user_id}?"):
+            return
+        try:
+            self.db.delete_user(user_id)
+            self.refresh_users()
+            messagebox.showinfo("Deleted", "User deleted.")
+        except Exception as exc:
+            messagebox.showerror("Error", str(exc))

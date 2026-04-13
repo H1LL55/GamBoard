@@ -119,6 +119,7 @@ class JackMixin:
         self.refresh_permits()
         self.refresh_issued_permits()
         self.refresh_penalties()
+        self.refresh_users()
 
     def refresh_dashboard(self):
         counts = self.db.dashboard_counts()

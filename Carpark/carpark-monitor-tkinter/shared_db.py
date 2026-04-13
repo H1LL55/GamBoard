@@ -158,6 +158,49 @@ class DatabaseManager:
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
+    
+    def get_user(self, username):
+        """Fetch a user row by username, or None if not found."""
+        with self.connect() as conn:
+            return conn.execute(
+            "SELECT * FROM users WHERE username = ?", (username,)
+        ).fetchone()
+
+    def add_user(self, username, password):
+        """Hash the password and save a new user. Raises if username already exists."""
+        import bcrypt
+        password_hash = bcrypt.hashpw(
+            password.encode("utf-8"),
+            bcrypt.gensalt()
+        ).decode("utf-8")
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, ?)",
+                (username.strip(), password_hash, now_str())
+            )
+
+    def delete_user(self, user_id):
+        """Delete a user by their ID."""
+        with self.connect() as conn:
+            conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+
+    def list_users(self):
+        """Return all users (without password hashes)."""
+        with self.connect() as conn:
+            return conn.execute(
+                "SELECT id, username, created_at FROM users ORDER BY id"
+            ).fetchall()
+
+    def check_password(self, username, password):
+        """Return True if username exists and password matches."""
+        import bcrypt
+        row = self.get_user(username)
+        if row is None:
+            return False
+        return bcrypt.checkpw(
+            password.encode("utf-8"),
+            row["password_hash"].encode("utf-8")
+        )
 
     def initialise(self):
         with self.connect() as conn:
@@ -274,6 +317,12 @@ class DatabaseManager:
                     created_at TEXT NOT NULL,
                     FOREIGN KEY (application_id) REFERENCES permit_applications(id)
                 );
+
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                    password_hash TEXT NOT NULL,
+                    created_at TEXT NOT NULL); 
                 """
             )
 

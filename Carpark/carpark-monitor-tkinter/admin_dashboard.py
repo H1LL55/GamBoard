@@ -8,11 +8,12 @@ from Jenna import JennaMixin
 
 
 class CarParkAdminDashboard(
+    tk.Tk,
     CallumMixin,
     JackMixin,
     ParisMixin,
-    JennaMixin,
-    tk.Tk
+    JennaMixin
+    
 ):
     # Main app file.
 
@@ -24,9 +25,7 @@ class CarParkAdminDashboard(
         self.geometry("420x300")
         self.minsize(420, 300)
 
-        #admin login
-        self.admin_username = "admin"
-        self.admin_password = "admin"
+        self.current_user = None
 
         # database and dropdown
         self.db = None

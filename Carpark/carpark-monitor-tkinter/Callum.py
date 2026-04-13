@@ -1,5 +1,5 @@
 import tkinter as tk                                                    # Import tkinter for GUI components
-from tkinter import ttk, messagebox                                     # Import themed widgets and popup dialogs
+from tkinter import ttk, messagebox                                      # Import themed widgets and popup dialogs
 
 from shared_db import DB_PATH, DatabaseManager                         # Import database path and manager from shared module
 
@@ -59,23 +59,31 @@ class CallumMixin:                                                      # Mixin 
         self.bind("<Return>", self.try_login)                           # Also triggers login when Enter key is pressed
         username_entry.focus_set()                                      # Automatically focuses the username field on load
 
-    def try_login(self, event=None):                                    # Handles login attempt; event=None allows button and Enter to both call it
-        username = self.login_username_var.get().strip()                # Reads and trims whitespace from the username input
-        password = self.login_password_var.get()                        # Reads the password input as-is
+    def try_login(self, event=None):
+        username = self.login_username_var.get().strip()
+        password = self.login_password_var.get()
 
-        if username == self.admin_username and password == self.admin_password:  # Checks credentials against stored admin values
-            self.unbind("<Return>")                                     # Removes Enter key binding so it doesn't interfere with dashboard
+        # Open the database to check the login
+        from shared_db import DB_PATH, DatabaseManager
+        temp_db = DatabaseManager(DB_PATH)
 
+        # If no users exist yet, tell them to run setup_admin.py first
+        if not temp_db.list_users():
+            messagebox.showwarning(
+                "No accounts",
+                "No admin accounts exist yet.\n\nRun setup_admin.py first to create the first account."
+            )
+            return
+
+        if temp_db.check_password(username, password):
+            self.unbind("<Return>")
+            self.current_user = username  
             if self.login_frame is not None:
-                self.login_frame.destroy()                              # Removes the login screen from the window
-
-            self.show_dashboard()                                       # Proceeds to build and show the main dashboard
+                self.login_frame.destroy()
+            self.show_dashboard()
         else:
-            messagebox.showerror(
-                "Login failed",
-                "Incorrect username or password."
-            )                                                           # Shows a popup error if credentials are wrong
-            self.login_password_var.set("")                             # Clears the password field after a failed attempt
+            messagebox.showerror("Login failed", "Incorrect username or password.")
+            self.login_password_var.set("")
 
     def show_dashboard(self):                                           # Sets up and displays the full admin dashboard after login
         self.title("CCCU Car Park Monitor - Admin Dashboard")           # Updates the window title bar
@@ -94,7 +102,12 @@ class CallumMixin:                                                      # Mixin 
     def build_header(self):                                             # Builds the top bar shown above the tabs on the dashboard
         header = ttk.Frame(self, padding=(16, 12))                      # Creates a frame with horizontal and vertical padding
         header.grid(row=0, column=0, sticky="ew")                      # Places header spanning the full width at the top
-        header.columnconfigure(0, weight=1)                             # Allows the header content to stretch horizontally
+        header.columnconfigure(0, weight=1)  
+        ttk.Button(
+        header,
+        text="Logout",
+        command=self.logout
+    ).grid(row=0, column=1, sticky="e", padx=(12, 0))                           # Allows the header content to stretch horizontally
 
         ttk.Label(
             header,
@@ -126,6 +139,10 @@ class CallumMixin:                                                      # Mixin 
         self.issued_permits_tab = ttk.Frame(self.notebook, padding=12) # Frame for viewing active and historical permits
         self.checker_tab = ttk.Frame(self.notebook, padding=12)        # Frame for the patrol permit checking tool
         self.penalties_tab = ttk.Frame(self.notebook, padding=12)      # Frame for issuing and viewing penalty notices
+        if self.current_user == "admin":
+            self.users_tab = ttk.Frame(self.notebook, padding=12)
+            self.notebook.add(self.users_tab, text="Manage Users")
+            self.build_users_tab()
 
         self.notebook.add(self.dashboard_tab, text="Dashboard")                     # Registers the Dashboard tab
         self.notebook.add(self.permits_tab, text="Permit Applications")             # Registers the Permit Applications tab
